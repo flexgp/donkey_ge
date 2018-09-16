@@ -8,7 +8,7 @@ __author__ = "Erik Hemberg"
 
 
 """
-Main function for donkey_ge. Parses YML config file and call mule_ge.
+Main function for donkey_ge. Parses YML config file and call donkey_ge.
 """
 
 
@@ -19,7 +19,7 @@ def parse_arguments():
     :return: settings from configuration file and CLI arguments
     :rtype dict:
     """
-    parser = argparse.ArgumentParser(description="Run mule_ge")
+    parser = argparse.ArgumentParser(description="Run donkey_ge")
     parser.add_argument(
         "-f",
         "--configuration_file",
@@ -32,7 +32,7 @@ def parse_arguments():
         "--output_dir",
         type=str,
         default=".",
-        help="Path to directory for output files. E.g. " "mule_ge_output",
+        help="Path to directory for output files. E.g. " "donkey_ge_output",
     )
     parser.add_argument("--coev", action="store_true", help="Coevolution")
 
