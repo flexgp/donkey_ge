@@ -1,0 +1,15 @@
+population_size: 4
+max_length: 10
+elite_size: 1
+generations: 3
+tournament_size: 2
+seed: 1
+crossover_probability: 0.8
+mutation_probability: 0.1
+codon_size: 127
+integer_input_element_max: 1000
+bnf_grammar: "tests/grammars/exemplars.bnf"
+fitness_function:
+    name: "SRExemplar"
+    symbolic_expression: "lambda x: x[0]**2 + x[1]**2"
+    exemplars: None

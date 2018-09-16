@@ -1,0 +1,4 @@
+<exemplars> ::= [(x1, x2, <expr>) for x1, x2 in zip(range(-11, 1), range(0, 10))]
+<expr> ::= <var> <op> <var> | <var>**2
+<op> ::= + | - | *
+<var> ::= x1 | x2

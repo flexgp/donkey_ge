@@ -1,0 +1,26 @@
+population_size: 4
+max_length: 100
+generations: 2
+tournament_size: 2
+seed: 1
+crossover_probability: 0.8
+mutation_probability: 0.1
+codon_size: 127
+integer_input_element_max: 1000
+elite_size: 1
+
+populations:
+  attacker:
+    adversary: defender
+    bnf_grammar: "tests/grammars/exemplars.bnf"
+    fitness_function:
+      name: "SRExemplar"
+      symbolic_expression: None
+      exemplars: None
+  defender:
+    adversary: attacker
+    bnf_grammar: "tests/grammars/symbolic_regression.bnf"
+    fitness_function:
+      name: "SRExpression"
+      exemplars: None
+      symbolic_expression: None
