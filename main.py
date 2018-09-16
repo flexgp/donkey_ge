@@ -8,7 +8,7 @@ __author__ = "Erik Hemberg"
 
 
 """
-Main function for mule_ge. Parses YML config file and call mule_ge.
+Main function for donkey_ge. Parses YML config file and call mule_ge.
 """
 
 

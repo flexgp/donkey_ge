@@ -122,7 +122,7 @@ Some tests are written with *Hypothesis*, http://hypothesis.readthedocs.io/en/ma
 
 For formatting use `black` e.g.
 ```
-black --line-length 100 --py36 main.py fitness/ heuristics/ tests/test_main.py tests/test_hypothesis_fitness.py tests/test_hypothesis_mule_ge.py
+black --line-length 100 --py36 main.py fitness/ heuristics/ tests/test_main.py tests/test_hypothesis_fitness.py tests/test_hypothesis_donkey_ge.py
 ```
 
 Use `flake8`, e.g.
