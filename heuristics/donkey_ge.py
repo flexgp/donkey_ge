@@ -11,8 +11,6 @@ import re
 from typing import List, Tuple, Any, Dict, Optional, DefaultDict, Sequence, Union
 from numbers import Number
 
-from fitness import fitness
-
 __author__ = "Erik Hemberg"
 """GE implementation. Bastardization of PonyGP and PonyGE.
 
@@ -221,7 +219,7 @@ class Individual(object):
         else:
             self.genome = genome
 
-        self.fitness: float = fitness.DEFAULT_FITNESS
+        self.fitness: float = DEFAULT_FITNESS
         self.phenotype: str = Individual.DEFAULT_PHENOTYPE
         self.used_input: int = 0
 
@@ -300,8 +298,13 @@ def map_input_with_grammar(individual: Individual, grammar: Grammar) -> Individu
     return individual
 
 
+class FitnessFunction(object):
+    def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
+        raise NotImplementedError("Define in subclass")
+
+
 def evaluate(
-    individual: Individual, fitness_function: fitness.FitnessFunction, cache: Dict[str, float]
+    individual: Individual, fitness_function: FitnessFunction, cache: Dict[str, float]
 ) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
 
@@ -340,7 +343,7 @@ def initialise_population(size: int) -> List[Individual]:
 def evaluate_fitness(
     individuals: List[Individual],
     grammar: Grammar,
-    fitness_function: fitness.FitnessFunction,
+    fitness_function: FitnessFunction,
     param: Dict[str, Any] = {},
 ) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
@@ -629,7 +632,7 @@ def int_flip_mutation(individual: Individual, mutation_probability: float) -> In
             individual.genome[i] = random.randint(0, Individual.codon_size)
             individual.phenotype = Individual.DEFAULT_PHENOTYPE
             individual.used_input = 0
-            individual.fitness = fitness.DEFAULT_FITNESS
+            individual.fitness = DEFAULT_FITNESS
 
     return individual
 
@@ -921,7 +924,7 @@ def run(param: Dict[str, Any]) -> Individual:
     ###########################
     grammar = Grammar(param["bnf_grammar"])
     grammar.read_bnf_file(grammar.file_name)
-    fitness_function = fitness.get_fitness_function(param["fitness_function"])
+    fitness_function = get_fitness_function(param["fitness_function"])
     # These are parameters since defaults are dangerous
     # TODO make clearer
     Individual.max_length = param["max_length"]
@@ -940,6 +943,34 @@ def run(param: Dict[str, Any]) -> Individual:
     print("Time: {:.3f} Best solution:{}".format(time.time() - start_time, best_ever))
 
     return best_ever
+
+
+DEFAULT_FITNESS: float = -float("inf")
+
+
+def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
+    """Returns fitness function object.
+
+    TODO: return type should be better, i.e. refactor to at least a fitness function class
+    Used to construct fitness functions from the configuration parameters
+
+    :param param: Fitness function parameters
+    :type param: dict
+    :return: Fitness function
+    :rtype: Object
+    """
+    from fitness.fitness import SRExpression, SRExemplar
+
+    name = param["name"]
+    fitness_function: FitnessFunction
+    if name == "SRExpression":
+        fitness_function = SRExpression(param)
+    elif name == "SRExemplar":
+        fitness_function = SRExemplar(param)
+    else:
+        raise BaseException("Unknown fitness function: {}".format(name))
+
+    return fitness_function
 
 
 if __name__ == "__main__":

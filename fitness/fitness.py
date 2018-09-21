@@ -1,19 +1,11 @@
 from typing import List, Dict, Any
 
 from fitness.symbolic_regression import SymbolicRegression
-from heuristics.donkey_ge import Individual
-
-
-DEFAULT_FITNESS: float = -float("inf")
+from heuristics.donkey_ge import Individual, DEFAULT_FITNESS, FitnessFunction
 
 
 def mean(values: List[float]) -> float:
     return sum(values) / len(values)
-
-
-class FitnessFunction(object):
-    def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
-        raise NotImplementedError("Define in subclass")
 
 
 class SRFitness(FitnessFunction):
@@ -81,29 +73,6 @@ class SRExemplar(SRFitness):
 
         fitness = mean(fitnesses)
         return fitness
-
-
-def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
-    """Returns fitness function object.
-
-    TODO: return type should be better, i.e. refactor to at least a fitness function class
-    Used to construct fitness functions from the configuration parameters
-
-    :param param: Fitness function parameters
-    :type param: dict
-    :return: Fitness function
-    :rtype: Object
-    """
-    name = param["name"]
-    fitness_function: FitnessFunction
-    if name == "SRExpression":
-        fitness_function = SRExpression(param)
-    elif name == "SRExemplar":
-        fitness_function = SRExemplar(param)
-    else:
-        raise BaseException("Unknown fitness function: {}".format(name))
-
-    return fitness_function
 
 
 if __name__ == "__main__":

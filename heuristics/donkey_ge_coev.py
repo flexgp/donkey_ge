@@ -5,6 +5,7 @@ import os
 from typing import Any, List, Dict
 from numbers import Number
 
+import heuristics.donkey_ge
 from heuristics.donkey_ge import (
     map_input_with_grammar,
     sort_population,
@@ -18,7 +19,6 @@ from heuristics.donkey_ge import (
     parse_arguments,
     Population,
 )
-from fitness import fitness
 
 __author__ = "Erik Hemberg"
 """
@@ -342,7 +342,7 @@ def run(param: Dict[str, Any]) -> Dict[str, Individual]:
         p_dict = param["populations"][key]
         grammar = Grammar(p_dict["bnf_grammar"])
         grammar.read_bnf_file(grammar.file_name)
-        fitness_function = fitness.get_fitness_function(p_dict["fitness_function"])
+        fitness_function = heuristics.donkey_ge.get_fitness_function(p_dict["fitness_function"])
         adversary = p_dict["adversary"]
         Individual.max_length = param["max_length"]
         Individual.codon_size = param["integer_input_element_max"]
