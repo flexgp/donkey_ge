@@ -8,6 +8,8 @@ import copy
 import os
 import random
 import re
+from typing import List, Tuple, Any, Dict, Optional, DefaultDict, Sequence, Union
+from numbers import Number
 
 from fitness import fitness
 
@@ -25,25 +27,25 @@ class Grammar(object):
     type is Terminal or NonTerminal
     """
 
-    NT = "NT"  # Non Terminal
-    T = "T"  # Terminal
-    rule_separator = "::="
-    production_separator = "|"
+    NT: str = "NT"  # Non Terminal
+    T: str = "T"  # Terminal
+    rule_separator: str = "::="
+    production_separator: str = "|"
 
-    def __init__(self, file_name):
+    def __init__(self, file_name: str) -> None:
         """Context free grammar.
 
         :param file_name: grammar file
         :type file_name: str
         """
-        self.rules = collections.OrderedDict()
+        self.rules: collections.OrderedDict = collections.OrderedDict()
         # TODO use an ordered set
-        self.non_terminals = set()
-        self.terminals = set()
-        self.start_rule = None
-        self.file_name = file_name
+        self.non_terminals: set = set()
+        self.terminals: set = set()
+        self.start_rule: Tuple[str, str] = ("", "")
+        self.file_name: str = file_name
 
-    def read_bnf_file(self, file_name):
+    def read_bnf_file(self, file_name: str) -> None:
         """Read a grammar file in BNF format. Wrapper for file reading.
 
         :param file_name: BNF grammar file
@@ -53,11 +55,11 @@ class Grammar(object):
 
         # Read the grammar file
         with open(file_name, "r") as in_file:
-            lines = in_file.read()
+            lines: str = in_file.read()
 
         self.parse_bnf_string(lines)
 
-    def parse_bnf_string(self, lines):
+    def parse_bnf_string(self, all_lines: str) -> None:
         """Parse a BNF string with REGEXP.
 
         # TODO use a non-regexp parser
@@ -67,8 +69,8 @@ class Grammar(object):
         :type lines: str
 
         """
-        assert lines is not ""
-        _lines = lines
+        assert all_lines is not ""
+        _lines = all_lines
         non_terminal_pattern = re.compile(
             r"""(# Group  so `split()` returns all NTs and Ts.
                  # Do not allow space in NTs. Use lookbehind to match "<"
@@ -88,7 +90,7 @@ class Grammar(object):
 
         # Remember last character on line to handle multi line rules
         last_character = None
-        lines = lines.split("\n")
+        lines: List[str] = all_lines.split("\n")
         for line in lines:
             line = line.strip()
             if not line.startswith("#") and line != "":
@@ -101,7 +103,7 @@ class Grammar(object):
                     assert len(lhs) > 2
                     assert non_terminal_pattern.search(lhs), "lhs is not a NT: {}".format(lhs)
                     self.non_terminals.add(lhs)
-                    if self.start_rule is None:
+                    if self.start_rule[0] == "" and self.start_rule[1] == "":
                         self.start_rule = (lhs, self.NT)
 
                 else:
@@ -141,12 +143,12 @@ class Grammar(object):
                 # Remember the last character of the line
                 last_character = productions[-1]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "T:{}\nNT:{}\nR:{}\nS:{}\n".format(
             self.terminals, self.non_terminals, self.rules, self.start_rule
         )
 
-    def generate_sentence(self, inputs):
+    def generate_sentence(self, inputs: List[int]) -> Tuple[str, int]:
         """Map inputs via rules to output sentence (phenotype).
 
         :param inputs: Inputs used to generate sentence with grammar
@@ -156,17 +158,17 @@ class Grammar(object):
         """
         used_input = 0
         # TODO faster data structure? E.g. queue
-        output = []
+        output: List[str] = []
         # Needed to avoid infinite loops with poorly specified
         # grammars
         cnt = 0
         break_out = len(inputs) * len(self.terminals)
-        unexpanded_symbols = [self.start_rule]
+        unexpanded_symbols: List[Tuple[str, str]] = [self.start_rule]
         while len(unexpanded_symbols) > 0 and used_input < len(inputs) and cnt < break_out:
             # Expand a production
-            current_symbol = unexpanded_symbols.pop(0)
+            current_symbol: Tuple[str, str] = unexpanded_symbols.pop(0)
             # Set output if it is a terminal
-            if current_symbol[1] != Grammar.NT:
+            if current_symbol is not None and current_symbol[1] != Grammar.NT:
                 output.append(current_symbol[0])
             else:
                 production_choices = self.rules[current_symbol[0]]
@@ -183,17 +185,59 @@ class Grammar(object):
 
         # Not fully expanded
         if len(unexpanded_symbols) > 0:
-            output = None
+            return Individual.DEFAULT_PHENOTYPE, used_input
         else:
-            output = "".join(output)
+            str_output: str = "".join(output)
+            return str_output, used_input
 
-        return output, used_input
+
+class Individual(object):
+    """A GE individual
+
+    :param codon_size: Max integer value for an input element
+    :type codon_size: int
+    :param max_length: Length of input
+    :type max_length: int
+
+    """
+
+    codon_size: int = -1
+    max_length: int = -1
+    DEFAULT_PHENOTYPE = ""
+
+    def __init__(self, genome: Optional[List[int]]) -> None:
+        """
+
+        :param genome: Input representation
+        :type genome: list of int or None
+        """
+        assert Individual.max_length > 0, "max_length {}".format(Individual.max_length)
+        assert Individual.codon_size > 0, "codon_size {}".format(Individual.codon_size)
+
+        if genome is None:
+            self.genome: List[int] = [
+                random.randint(0, Individual.codon_size) for _ in range(Individual.max_length)
+            ]
+        else:
+            self.genome = genome
+
+        self.fitness: float = fitness.DEFAULT_FITNESS
+        self.phenotype: str = Individual.DEFAULT_PHENOTYPE
+        self.used_input: int = 0
+
+    def get_fitness(self) -> float:
+        return self.fitness
+
+    def __str__(self) -> str:
+        return "Ind: {0}; {1}".format(str(self.phenotype), self.get_fitness())
 
 
 class Population(object):
     """A population container"""
 
-    def __init__(self, fitness_function, grammar, individuals):
+    def __init__(
+        self, fitness_function: Any, grammar: Grammar, individuals: List[Individual]
+    ) -> None:
         """Container for a population.
 
         TODO use a data structure that maintains order of individuals based on
@@ -210,54 +254,14 @@ class Population(object):
         self.grammar = grammar
         self.individuals = individuals
 
-    def __str__(self):
+    def __str__(self) -> str:
         individuals = "\n".join(map(str, self.individuals))
         _str = "{} {} \n{}".format(str(self.fitness_function), self.grammar.file_name, individuals)
 
         return _str
 
 
-class Individual(object):
-    """A GE individual
-
-    :param codon_size: Max integer value for an input element
-    :type codon_size: int
-    :param max_length: Length of input
-    :type max_length: int
-
-    """
-
-    codon_size = None
-    max_length = None
-
-    def __init__(self, genome):
-        """
-
-        :param genome: Input representation
-        :type genome: list of int or None
-        """
-        assert Individual.max_length > 0, "max_length {}".format(Individual.max_length)
-        assert Individual.codon_size > 0, "codon_size {}".format(Individual.codon_size)
-
-        if genome is None:
-            self.genome = [
-                random.randint(0, Individual.codon_size) for _ in range(Individual.max_length)
-            ]
-        else:
-            self.genome = genome
-
-        self.fitness = None
-        self.phenotype = None
-        self.used_input = None
-
-    def get_fitness(self):
-        return self.fitness
-
-    def __str__(self):
-        return "Ind: {0}; {1}".format(str(self.phenotype), self.get_fitness())
-
-
-def map_input_with_grammar(individual, grammar):
+def map_input_with_grammar(individual: Individual, grammar: Grammar) -> Individual:
     """ Generate a sentence from input and set the sentence and number of used
     input.
 
@@ -271,11 +275,11 @@ def map_input_with_grammar(individual, grammar):
     """
     break_out = 100
     cnt = 0
-    phenotype = None
-    n_inputs_used = None
-    while phenotype is None and cnt < break_out:
+    phenotype: str = Individual.DEFAULT_PHENOTYPE
+    n_inputs_used: int = 0
+    while phenotype is Individual.DEFAULT_PHENOTYPE and cnt < break_out:
         phenotype, n_inputs_used = grammar.generate_sentence(individual.genome)
-        if phenotype is None:
+        if phenotype is Individual.DEFAULT_PHENOTYPE:
             _individual = Individual(None)
             individual.genome = _individual.genome
             cnt += 1
@@ -288,15 +292,17 @@ def map_input_with_grammar(individual, grammar):
     # TODO better solution, this handles testing when insensible
     # grammars are passed through. Thus the grammar correctness need
     # to be guaranteed as well...
-    if phenotype is None:
-        raise ValueError("Phenotype is None")
+    if phenotype is Individual.DEFAULT_PHENOTYPE:
+        raise ValueError("Phenotype is DEFAULT_PHENOTYPE: {}".format(Individual.DEFAULT_PHENOTYPE))
 
     individual.used_input = n_inputs_used
 
     return individual
 
 
-def evaluate(individual, fitness_function=None, cache=None):
+def evaluate(
+    individual: Individual, fitness_function: fitness.FitnessFunction, cache: Dict[str, float]
+) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
 
     :param individual:
@@ -316,7 +322,7 @@ def evaluate(individual, fitness_function=None, cache=None):
     return individual
 
 
-def initialise_population(size):
+def initialise_population(size: int) -> List[Individual]:
     """Create a population of Individuals of the given size.
 
     :param size: Number of individuals to generate
@@ -331,16 +337,12 @@ def initialise_population(size):
     return individuals
 
 
-def evaluate_wrapper(solution):
-    individual = solution["individual"]
-    fitness_function = solution["fitness_function"]
-    cache = solution["cache"]
-    individual = evaluate(individual, fitness_function, cache)
-
-    return {"individual": individual}
-
-
-def evaluate_fitness(individuals, grammar, fitness_function, param=None):
+def evaluate_fitness(
+    individuals: List[Individual],
+    grammar: Grammar,
+    fitness_function: fitness.FitnessFunction,
+    param: Dict[str, Any] = {},
+) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
 
     :param individuals:
@@ -368,7 +370,7 @@ def evaluate_fitness(individuals, grammar, fitness_function, param=None):
     return individuals
 
 
-def variation(parents, param):
+def variation(parents: List[Individual], param: Dict[str, Any]) -> List[Individual]:
     """
     Vary individual solutions with crossover and mutation oeprations. Drive the
     search by generating variation of the parent solutions.
@@ -386,7 +388,7 @@ def variation(parents, param):
     ###################
     # Crossover
     ###################
-    new_individuals = []
+    new_individuals: List[Individual] = []
     while len(new_individuals) < param["population_size"] and len(parents) > 1:
         # Select parents
         _parents = random.sample(parents, 2)
@@ -412,7 +414,7 @@ def variation(parents, param):
     return new_individuals
 
 
-def search_loop(population, param):
+def search_loop(population: Population, param: Dict[str, Any]) -> Individual:
     """Return the best individual from the evolutionary search loop. Assumes
     the population is initially not evaluated.
 
@@ -427,7 +429,7 @@ def search_loop(population, param):
 
     start_time = time.time()
     param["cache"] = collections.OrderedDict()
-    stats = collections.defaultdict(list)
+    stats: DefaultDict[str, List[Number]] = collections.defaultdict(list)
 
     ######################
     # Evaluate fitness
@@ -493,7 +495,9 @@ def search_loop(population, param):
     return best_ever
 
 
-def write_run_output(generation, stats, param):
+def write_run_output(
+    generation: int, stats: Dict[str, List[Number]], param: Dict[str, Any]
+) -> None:
     """Write run stats to files.
 
     :param generation: Generation number
@@ -503,7 +507,7 @@ def write_run_output(generation, stats, param):
     :param param: Parameters
     :type param: dict
     """
-    _hist = collections.defaultdict(int)
+    _hist: DefaultDict[str, int] = collections.defaultdict(int)
     for k, v in param["cache"].items():
         # TODO better key?
         _hist[str(v)] += 1
@@ -539,7 +543,9 @@ def write_run_output(generation, stats, param):
                     out_file.write("{}\n".format(",".join(map(str, line))))
 
 
-def print_stats(generation, individuals, stats, start_time):
+def print_stats(
+    generation: int, individuals: List[Individual], stats: Dict[str, List[Any]], start_time: float
+) -> None:
     """
     Print the statistics for the generation and population.
 
@@ -550,10 +556,10 @@ def print_stats(generation, individuals, stats, start_time):
     :param stats: Collected statistics of run
     :type stats: dict
     :param start_time: Start time
-    :type start_time: time.time
+    :type start_time: float
     """
 
-    def get_ave_and_std(values):
+    def get_ave_and_std(values: Sequence[float]) -> Tuple[float, float]:
         """
         Return average and standard deviation.
 
@@ -562,18 +568,18 @@ def print_stats(generation, individuals, stats, start_time):
         :returns: Average and Standard deviation of the input values
         :rtype: tuple
         """
-        _ave = float(sum(values)) / len(values)
-        _std = math.sqrt(float(sum([(value - _ave) ** 2 for value in values])) / len(values))
+        _ave: float = float(sum(values)) / float(len(values))
+        _std: float = math.sqrt(float(sum([(value - _ave) ** 2 for value in values])) / len(values))
         return _ave, _std
 
     # Make sure individuals are sorted
     individuals = sort_population(individuals)
     # Get the fitness values
-    fitness_values = [i.get_fitness() for i in individuals]
+    fitness_values: Sequence[float] = [i.get_fitness() for i in individuals]
     # Get the number of nodes
-    size_values = [i.used_input for i in individuals]
+    size_values: Sequence[float] = [float(i.used_input) for i in individuals]
     # Get the max length
-    length_values = [len(i.genome) for i in individuals]
+    length_values: Sequence[float] = [float(len(i.genome)) for i in individuals]
     # Get average and standard deviation of fitness
     ave_fit, std_fit = get_ave_and_std(fitness_values)
     # Get average and standard deviation of size
@@ -602,7 +608,7 @@ def print_stats(generation, individuals, stats, start_time):
     stats["solution_values"].append([_.phenotype for _ in individuals])
 
 
-def int_flip_mutation(individual, mutation_probability):
+def int_flip_mutation(individual: Individual, mutation_probability: float) -> Individual:
     """Mutate the individual by randomly choosing a new int with
     probability.
 
@@ -621,14 +627,16 @@ def int_flip_mutation(individual, mutation_probability):
     for i in range(len(individual.genome)):
         if random.random() < mutation_probability:
             individual.genome[i] = random.randint(0, Individual.codon_size)
-            individual.phenotype = None
-            individual.used_input = None
-            individual.fitness = None
+            individual.phenotype = Individual.DEFAULT_PHENOTYPE
+            individual.used_input = 0
+            individual.fitness = fitness.DEFAULT_FITNESS
 
     return individual
 
 
-def tournament_selection(population, population_size, tournament_size):
+def tournament_selection(
+    population: List[Individual], population_size: int, tournament_size: int
+) -> List[Individual]:
     """
     Return individuals from a population by drawing
     `tournament_size` competitors randomly and selecting the best
@@ -648,7 +656,7 @@ def tournament_selection(population, population_size, tournament_size):
     assert tournament_size <= len(population), "{} > {}".format(tournament_size, len(population))
 
     # Iterate until there are enough tournament winners selected
-    winners = []
+    winners: List[Individual] = []
     while len(winners) < population_size:
         # Randomly select tournament size individual solutions
         # from the population.
@@ -663,7 +671,9 @@ def tournament_selection(population, population_size, tournament_size):
     return winners
 
 
-def onepoint_crossover(p_0, p_1, crossover_probability):
+def onepoint_crossover(
+    p_0: Individual, p_1: Individual, crossover_probability: float
+) -> List[Individual]:
     """Given two individuals, create two children using one-point
     crossover and return them.
 
@@ -699,7 +709,7 @@ def onepoint_crossover(p_0, p_1, crossover_probability):
     return individuals
 
 
-def sort_population(individuals):
+def sort_population(individuals: List[Individual]) -> List[Individual]:
     """
     Return a list sorted on the fitness value of the individuals in
     the population. Descending order.
@@ -717,7 +727,12 @@ def sort_population(individuals):
     return individuals
 
 
-def generational_replacement(new_population, old_population, elite_size, population_size):
+def generational_replacement(
+    new_population: List[Individual],
+    old_population: List[Individual],
+    elite_size: int,
+    population_size: int,
+) -> List[Individual]:
     """
     Return a new population. The `elite_size` best old_population
     are appended to the new population.
@@ -756,7 +771,7 @@ def generational_replacement(new_population, old_population, elite_size, populat
     return new_population
 
 
-def parse_arguments():
+def parse_arguments() -> Dict[str, Union[str, bool, Number]]:
     """
     Returns a dictionary of the default parameters, or the ones set by
     commandline arguments.
@@ -869,7 +884,7 @@ def parse_arguments():
     return vars(options)
 
 
-def run(param):
+def run(param: Dict[str, Any]) -> Individual:
     """
     Return the best solution. Create an initial
     population. Perform an evolutionary search.
@@ -877,7 +892,6 @@ def run(param):
     :param param: parameters for pony gp
     :type param: dict
     :returns: Best solution
-    :rtype: dict
     """
 
     start_time = time.time()
