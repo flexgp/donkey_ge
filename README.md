@@ -120,16 +120,17 @@ Some tests are written with *Hypothesis*, http://hypothesis.readthedocs.io/en/ma
 
 ## Development
 
-For formatting use `black` e.g.
+- For formatting use `black` e.g.
 ```
 black --line-length 100 --py36 main.py fitness/ heuristics/ tests/test_main.py tests/test_hypothesis_fitness.py tests/test_hypothesis_donkey_ge.py
 ```
 
-Use `flake8`, e.g.
+- Use `flake8`, e.g.
 ```
 flake8 main.py fitness/ heuristics/
 ```
 
+- Use `mypy`
 
 ## Documentation
 

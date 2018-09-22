@@ -5,6 +5,7 @@ import random
 import string
 import unittest
 
+import heuristics.donkey_ge
 from fitness import fitness
 from heuristics import donkey_ge
 
@@ -330,9 +331,9 @@ class TestMuleGE(unittest.TestCase):
             cnt += 1
 
         if not same:
-            self.assertIsNone(new_individual.phenotype)
-            self.assertIsNone(new_individual.used_input)
-            self.assertIsNone(new_individual.fitness)
+            self.assertEqual(new_individual.phenotype, donkey_ge.Individual.DEFAULT_PHENOTYPE)
+            self.assertEqual(new_individual.used_input, 0)
+            self.assertEqual(new_individual.fitness, donkey_ge.DEFAULT_FITNESS)
 
     @hypothesis.given(get_variation())
     def test_variation(self, args):
@@ -407,10 +408,10 @@ class TestMuleGE(unittest.TestCase):
             individual = donkey_ge.Individual(inputs)
             _individual = donkey_ge.map_input_with_grammar(individual, grammar)
             self.assertIs(individual, _individual)
-            self.assertIsNotNone(_individual.phenotype)
+            self.assertNotEqual(_individual.phenotype, donkey_ge.Individual.DEFAULT_PHENOTYPE)
             self.assertGreater(_individual.used_input, -1)
         except ValueError as e:
-            self.assertIsNone(individual.phenotype)
+            self.assertEquals(individual.phenotype, donkey_ge.Individual.DEFAULT_PHENOTYPE)
 
     @hypothesis.given(param=get_run_param(), rnd=hs.random_module())
     def test_run(self, param, rnd):
@@ -428,7 +429,7 @@ class TestMuleGE(unittest.TestCase):
         hypothesis.assume(param["elite_size"] < param["population_size"])
 
         # TODO too much setup, can it be refactored...
-        fitness_function = fitness.get_fitness_function(param["fitness_function"])
+        fitness_function = heuristics.donkey_ge.get_fitness_function(param["fitness_function"])
         grammar = donkey_ge.Grammar(param["bnf_grammar"])
         grammar.read_bnf_file(grammar.file_name)
         donkey_ge.Individual.codon_size = param["codon_size"]

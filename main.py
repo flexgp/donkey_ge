@@ -1,5 +1,6 @@
 import argparse
 import yaml
+from typing import Any, Dict
 
 from heuristics import donkey_ge, donkey_ge_coev
 
@@ -12,7 +13,7 @@ Main function for donkey_ge. Parses YML config file and call donkey_ge.
 """
 
 
-def parse_arguments():
+def parse_arguments() -> Dict[str, Any]:
     """
     Parse command line arguments (`sys.argv`).
 
@@ -40,7 +41,7 @@ def parse_arguments():
 
     # Read configuration file
     with open(_args.configuration_file, "r") as configuration_file:
-        settings = yaml.load(configuration_file)
+        settings: Dict[str, Any] = yaml.load(configuration_file)
 
     # Set CLI arguments in settings
     settings["output_dir"] = _args.output_dir
@@ -49,7 +50,7 @@ def parse_arguments():
     return settings
 
 
-def main():
+def main() -> Dict[str, Any]:
     # Parse CLI arguments
     args = parse_arguments()
     if args["coev"]:

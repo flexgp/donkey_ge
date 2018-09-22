@@ -2,10 +2,23 @@ import collections
 import time
 import random
 import os
+from typing import Any, List, Dict
+from numbers import Number
 
-from heuristics.donkey_ge import map_input_with_grammar, sort_population, print_stats, tournament_selection,\
-    Individual, variation, generational_replacement, Grammar, initialise_population, parse_arguments
-from fitness import fitness
+import heuristics.donkey_ge
+from heuristics.donkey_ge import (
+    map_input_with_grammar,
+    sort_population,
+    print_stats,
+    tournament_selection,
+    Individual,
+    variation,
+    generational_replacement,
+    Grammar,
+    initialise_population,
+    parse_arguments,
+    Population,
+)
 
 __author__ = "Erik Hemberg"
 """
@@ -16,10 +29,17 @@ Alternating Coevolutionary Algorithm
 CACHE_MAX_SIZE = 100000
 
 
-class Population(object):
+class CoevPopulation(Population):
     """A population container"""
 
-    def __init__(self, fitness_function, grammar, adversary, name, individuals):
+    def __init__(
+        self,
+        fitness_function: Any,
+        grammar: Grammar,
+        adversary: str,
+        name: str,
+        individuals: List[Individual],
+    ) -> None:
         """Container for a population.
         :param fitness_function:
         :type fitness_function: function
@@ -32,21 +52,19 @@ class Population(object):
         :param individuals:
         :type individuals: list of Individual
         """
-        self.fitness_function = fitness_function
-        self.grammar = grammar
+        super(CoevPopulation, self).__init__(fitness_function, grammar, individuals)
         self.adversary = adversary
         self.name = name
-        self.individuals = individuals
 
-    def clone(self):
-        clone = Population(
+    def clone(self) -> Population:
+        clone = CoevPopulation(
             self.fitness_function, self.grammar, self.adversary, self.name, self.individuals
         )
         return clone
 
-    def __str__(self):
+    def __str__(self) -> str:
         individuals = "\n".join(map(str, self.individuals))
-        _str = "%s %s %s %s\n%s" % (
+        _str = "{} {} {} {}\n{}".format(
             str(self.fitness_function),
             self.grammar.file_name,
             self.adversary,
@@ -57,7 +75,12 @@ class Population(object):
         return _str
 
 
-def evaluate(individual, fitness_function, inds=None, cache=None):
+def evaluate(
+    individual: Individual,
+    fitness_function: Any,
+    inds: List[Individual] = [],
+    cache: Dict[str, float] = {},
+) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
     :param individual:
     :type individual: Individual
@@ -78,17 +101,13 @@ def evaluate(individual, fitness_function, inds=None, cache=None):
     return individual
 
 
-def evaluate_wrapper(solution):
-    individual = solution["individual"]
-    fitness_function = solution["fitness_function"]
-    cache = solution["cache"]
-    adversaries = solution["adversaries"]
-    individual = evaluate(individual, fitness_function, adversaries, cache)
-
-    return {"individual": individual}
-
-
-def evaluate_fitness(individuals, grammar, fitness_function, adversaries=None, param=None):
+def evaluate_fitness(
+    individuals: List[Individual],
+    grammar: Grammar,
+    fitness_function: Any,
+    adversaries: List[Individual] = [],
+    param: Dict[str, Any] = {},
+) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
     :param individuals:
     :type individuals: list of Individual
@@ -113,7 +132,7 @@ def evaluate_fitness(individuals, grammar, fitness_function, adversaries=None, p
         # TODO map only once
         map_input_with_grammar(ind, grammar)
         assert ind.phenotype
-        if ind.phenotype is not None:
+        if ind.phenotype is not "":
             # Execute the fitness function
             evaluate(ind, fitness_function, adversaries, cache)
             assert ind.fitness is not None
@@ -123,7 +142,9 @@ def evaluate_fitness(individuals, grammar, fitness_function, adversaries=None, p
     return individuals
 
 
-def search_loop_coevolution(populations, param):
+def search_loop_coevolution(
+    populations: Dict[str, CoevPopulation], param: Dict[str, Any]
+) -> Dict[str, Individual]:
     """Return the best individual from the evolutionary search
     loop.
     :param populations: Initial populations for search
@@ -137,8 +158,8 @@ def search_loop_coevolution(populations, param):
     # Evaluate fitness
     param["cache"] = collections.OrderedDict()
 
-    stats_dict = collections.OrderedDict()
-    best_ever = collections.OrderedDict()
+    stats_dict: collections.OrderedDict[str, Any] = collections.OrderedDict()
+    best_ever: collections.OrderedDict[str, Individual] = collections.OrderedDict()
 
     for key, population in populations.items():
         start_time = time.time()
@@ -224,7 +245,12 @@ def search_loop_coevolution(populations, param):
     return best_ever
 
 
-def write_run_output(generation, stats_dict, populations, param):
+def write_run_output(
+    generation: int,
+    stats_dict: Dict[str, Dict[str, List[Number]]],
+    populations: Dict[str, CoevPopulation],
+    param: Dict[str, Any],
+) -> None:
     """Write run stats to files.
     :param generation: Generation number
     :type generation: int
@@ -235,7 +261,7 @@ def write_run_output(generation, stats_dict, populations, param):
     :param param: Parameters
     :type param: dict
     """
-    _hist = collections.defaultdict(int)
+    _hist: Dict[str, int] = collections.defaultdict(int)
     for k, v in param["cache"].items():
         _hist[str(v)] += 1
 
@@ -273,7 +299,7 @@ def write_run_output(generation, stats_dict, populations, param):
                         out_file.write("%s\n" % (",".join(map(str, line))))
 
 
-def run(param):
+def run(param: Dict[str, Any]) -> Dict[str, Individual]:
     """
     Return the best solution. Create an initial
     population. Perform an evolutionary search.
@@ -309,17 +335,17 @@ def run(param):
     ###########################
     # Create initial population
     ###########################
-    populations = collections.OrderedDict()
+    populations: collections.OrderedDict = collections.OrderedDict()
     for key, value in param["populations"].items():
         p_dict = param["populations"][key]
         grammar = Grammar(p_dict["bnf_grammar"])
         grammar.read_bnf_file(grammar.file_name)
-        fitness_function = fitness.get_fitness_function(p_dict["fitness_function"])
+        fitness_function = heuristics.donkey_ge.get_fitness_function(p_dict["fitness_function"])
         adversary = p_dict["adversary"]
         Individual.max_length = param["max_length"]
         Individual.codon_size = param["integer_input_element_max"]
         individuals = initialise_population(param["population_size"])
-        population = Population(fitness_function, grammar, adversary, key, individuals)
+        population = CoevPopulation(fitness_function, grammar, adversary, key, individuals)
         populations[key] = population
 
     ###########################
