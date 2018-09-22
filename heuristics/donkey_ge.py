@@ -14,8 +14,6 @@ from numbers import Number
 __author__ = "Erik Hemberg"
 """GE implementation. Bastardization of PonyGP and PonyGE.
 
-TODO make version that does not require numpy...
-
 """
 
 
