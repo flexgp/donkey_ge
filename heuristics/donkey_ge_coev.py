@@ -29,7 +29,7 @@ Alternating Coevolutionary Algorithm
 CACHE_MAX_SIZE = 100000
 
 
-class Population(object):
+class CoevPopulation(Population):
     """A population container"""
 
     def __init__(
@@ -52,14 +52,12 @@ class Population(object):
         :param individuals:
         :type individuals: list of Individual
         """
-        self.fitness_function = fitness_function
-        self.grammar = grammar
+        super(CoevPopulation, self).__init__(fitness_function, grammar, individuals)
         self.adversary = adversary
         self.name = name
-        self.individuals = individuals
 
     def clone(self) -> Population:
-        clone = Population(
+        clone = CoevPopulation(
             self.fitness_function, self.grammar, self.adversary, self.name, self.individuals
         )
         return clone
@@ -81,7 +79,7 @@ def evaluate(
     individual: Individual,
     fitness_function: Any,
     inds: List[Individual] = [],
-    cache: Dict[str, float] = None,
+    cache: Dict[str, float] = {},
 ) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
     :param individual:
@@ -109,7 +107,7 @@ def evaluate_fitness(
     fitness_function: Any,
     adversaries: List[Individual] = [],
     param: Dict[str, Any] = {},
-):
+) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
     :param individuals:
     :type individuals: list of Individual
@@ -145,7 +143,7 @@ def evaluate_fitness(
 
 
 def search_loop_coevolution(
-    populations: Dict[str, Population], param: Dict[str, Any]
+    populations: Dict[str, CoevPopulation], param: Dict[str, Any]
 ) -> Dict[str, Individual]:
     """Return the best individual from the evolutionary search
     loop.
@@ -250,7 +248,7 @@ def search_loop_coevolution(
 def write_run_output(
     generation: int,
     stats_dict: Dict[str, Dict[str, List[Number]]],
-    populations: Dict[str, Population],
+    populations: Dict[str, CoevPopulation],
     param: Dict[str, Any],
 ) -> None:
     """Write run stats to files.
@@ -347,7 +345,7 @@ def run(param: Dict[str, Any]) -> Dict[str, Individual]:
         Individual.max_length = param["max_length"]
         Individual.codon_size = param["integer_input_element_max"]
         individuals = initialise_population(param["population_size"])
-        population = Population(fitness_function, grammar, adversary, key, individuals)
+        population = CoevPopulation(fitness_function, grammar, adversary, key, individuals)
         populations[key] = population
 
     ###########################
