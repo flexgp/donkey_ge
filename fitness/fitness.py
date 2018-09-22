@@ -44,6 +44,8 @@ class SRExpression(SRFitness):
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         self.symbolic_expression = eval(fcn_str)
         fitness = self.run(cache)
+        fitness = -fitness
+        print("{}: {}".format(fcn_str, fitness))
         return fitness
 
     def coev(self, fcn_str: str, tests: List[Individual], cache: Dict[str, float]) -> float:
@@ -52,6 +54,7 @@ class SRExpression(SRFitness):
             self.exemplars = eval(test.phenotype)
             fitness = self.__call__(fcn_str, cache)
             fitnesses[i] = fitness
+            print("{} vs {}: {}".format(fcn_str, test.phenotype, fitness))
 
         fitness = mean(fitnesses)
         return fitness
@@ -61,7 +64,7 @@ class SRExemplar(SRFitness):
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         self.exemplars = eval(fcn_str)
         fitness = self.run(cache)
-        fitness = -fitness
+        print("{}: {}".format(fcn_str, fitness))
         return fitness
 
     def coev(self, fcn_str: str, tests: List[Individual], cache: Dict[str, float]) -> float:
@@ -70,6 +73,7 @@ class SRExemplar(SRFitness):
             self.symbolic_expression = eval(test.phenotype)
             fitness = self.__call__(fcn_str, cache)
             fitnesses[i] = fitness
+            print("{} vs {}: {}".format(fcn_str, test.phenotype, fitness))
 
         fitness = mean(fitnesses)
         return fitness
