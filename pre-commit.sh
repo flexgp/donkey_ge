@@ -7,19 +7,20 @@
 #   (can't use xargs because we want to look at Pylint's exit code)
 git diff --cached --name-only --diff-filter=ACM | grep ".*\.py$" > python_files_to_lint
 if [ ! -s python_files_to_lint ]; then
-    # No Python files being committed
+    echo "No Python files being committed\n"
     rm python_files_to_lint
     exit 0
 fi
-echo "Black\n"
-black --line-length 100 --py36 python_files_to_lint
-echo "flake8\n"
-flake8 --max-line-length=100 python_files_to_lint
-echo "MyPy\n"
-mypy --strict python_files_to_lint
+python_files="$(paste -s -d ' ' python_files_to_lint)"
 
-pylint_args="$(paste -s -d ' ' python_files_to_lint)"
-pylint $pylint_args
+echo "Black\n"
+black --line-length 100 --py36 ${python_files}
+echo "flake8\n"
+flake8 --max-line-length=100 ${python_files}
+echo "MyPy\n"
+mypy --strict ${python_files}
+
+pylint ${python_files}
 exit_status=$?
 rm python_files_to_lint
 # See https://pylint.readthedocs.io/en/latest/user_guide/run.html#exit-codes
