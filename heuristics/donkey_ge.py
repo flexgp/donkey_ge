@@ -60,8 +60,8 @@ class Grammar(object):
         # TODO use a non-regexp parser
         # TODO does not handle newlines well
 
-        :param lines: BNF grammar
-        :type lines: str
+        :param all_lines: BNF grammar
+        :type all_lines: str
 
         """
         assert all_lines != ""

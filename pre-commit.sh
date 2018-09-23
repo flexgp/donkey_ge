@@ -5,7 +5,7 @@
 # Second command filters only Python files
 # Put those file names in a file
 #   (can't use xargs because we want to look at Pylint's exit code)
-git diff --cached --name-only --diff-filter=ACM | grep ".*\.py$" > python_files_to_lint
+git diff --name-only --diff-filter=ACM | grep ".*\.py$" > python_files_to_lint
 if [ ! -s python_files_to_lint ]; then
     echo "No Python files being committed\n"
     rm python_files_to_lint
