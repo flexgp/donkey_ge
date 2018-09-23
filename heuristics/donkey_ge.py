@@ -189,10 +189,10 @@ class Grammar(object):
 class Individual(object):
     """A GE individual
 
-    :param codon_size: Max integer value for an input element
-    :type codon_size: int
-    :param max_length: Length of input
-    :type max_length: int
+    Attributes:
+        codon_size: Max integer value for an input element
+        max_length: Length of input
+        DEFAULT_PHENOTYPE:
 
     """
 
@@ -502,8 +502,7 @@ def search_loop(population: Population, param: Dict[str, Any]) -> Individual:
     return best_ever
 
 
-def print_cache_stats(generation: int, param: Dict[str, Any]
-) -> None:
+def print_cache_stats(generation: int, param: Dict[str, Any]) -> None:
     _hist: DefaultDict[str, int] = collections.defaultdict(int)
     for v in param["cache"].values():
         _hist[str(v)] += 1
@@ -527,7 +526,7 @@ def get_out_file_name(out_file_name: str, param: Dict[str, Any]) -> str:
 
 
 def write_run_output(
-        generation: int, stats: Dict[str, List[Number]], param: Dict[str, Any]
+    generation: int, stats: Dict[str, List[Number]], param: Dict[str, Any]
 ) -> None:
     """Write run stats to files.
 
