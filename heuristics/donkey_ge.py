@@ -289,7 +289,6 @@ def map_input_with_grammar(individual: Individual, grammar: Grammar) -> Individu
     # use a break out counter to avoid infinite loop
     # TODO count number of remappings
     individual.phenotype = phenotype
-    print(cnt)
 
     # TODO better solution, this handles testing when insensible
     # grammars are passed through. Thus the grammar correctness need

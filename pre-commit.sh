@@ -12,7 +12,7 @@ if [ ! -s python_files_to_lint ]; then
     exit 0
 fi
 python_files="$(paste -s -d ' ' python_files_to_lint)"
-
+exit 1
 echo "Black\n"
 black --line-length 100 --py36 ${python_files}
 echo "flake8\n"
