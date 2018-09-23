@@ -78,8 +78,8 @@ class CoevPopulation(Population):
 def evaluate(
     individual: Individual,
     fitness_function: Any,
-    inds: List[Individual] = [],
-    cache: Dict[str, float] = {},
+    inds: List[Individual],
+    cache: Dict[str, float],
 ) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
     :param individual:
@@ -105,8 +105,8 @@ def evaluate_fitness(
     individuals: List[Individual],
     grammar: Grammar,
     fitness_function: Any,
-    adversaries: List[Individual] = [],
-    param: Dict[str, Any] = {},
+    adversaries: List[Individual],
+    param: Dict[str, Any],
 ) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
     :param individuals:
@@ -158,8 +158,8 @@ def search_loop_coevolution(
     # Evaluate fitness
     param["cache"] = collections.OrderedDict()
 
-    stats_dict: collections.OrderedDict[str, Any] = collections.OrderedDict()
-    best_ever: collections.OrderedDict[str, Individual] = collections.OrderedDict()
+    stats_dict: collections.OrderedDict[str, Any] = collections.OrderedDict()  # pylint: disable=unsubscriptable-object
+    best_ever: collections.OrderedDict[str, Individual] = collections.OrderedDict()  # pylint: disable=unsubscriptable-object
 
     for key, population in populations.items():
         start_time = time.time()
@@ -207,7 +207,7 @@ def search_loop_coevolution(
             # TODO do not bother with elite_number of variations
             new_individuals = variation(parents, param)
 
-            for i in range(len(elites)):
+            for i, _ in enumerate(elites):
                 new_individuals[i] = elites[i]
 
             # Evaluate fitness
@@ -336,7 +336,7 @@ def run(param: Dict[str, Any]) -> Dict[str, Individual]:
     # Create initial population
     ###########################
     populations: collections.OrderedDict = collections.OrderedDict()
-    for key, value in param["populations"].items():
+    for key in param["populations"].keys():
         p_dict = param["populations"][key]
         grammar = Grammar(p_dict["bnf_grammar"])
         grammar.read_bnf_file(grammar.file_name)
@@ -360,5 +360,5 @@ def run(param: Dict[str, Any]) -> Dict[str, Individual]:
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    run(args)
+    ARGS = parse_arguments()
+    run(ARGS)

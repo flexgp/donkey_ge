@@ -65,7 +65,7 @@ class Grammar(object):
         :type lines: str
 
         """
-        assert all_lines is not ""
+        assert all_lines != ""
         _lines = all_lines
         non_terminal_pattern = re.compile(
             r"""(# Group  so `split()` returns all NTs and Ts.
@@ -115,7 +115,7 @@ class Grammar(object):
                     tmp_production = []
                     for symbol in non_terminal_pattern.split(production):
                         symbol = symbol.replace(r"\<", "<").replace(r"\>", ">")
-                        if len(symbol) == 0:
+                        if not symbol:
                             continue
                         elif non_terminal_pattern.match(symbol):
                             tmp_production.append((symbol, self.NT))
@@ -160,7 +160,7 @@ class Grammar(object):
         cnt = 0
         break_out = len(inputs) * len(self.terminals)
         unexpanded_symbols: List[Tuple[str, str]] = [self.start_rule]
-        while len(unexpanded_symbols) > 0 and used_input < len(inputs) and cnt < break_out:
+        while unexpanded_symbols and used_input < len(inputs) and cnt < break_out:
             # Expand a production
             current_symbol: Tuple[str, str] = unexpanded_symbols.pop(0)
             # Set output if it is a terminal
@@ -180,7 +180,7 @@ class Grammar(object):
             cnt += 1
 
         # Not fully expanded
-        if len(unexpanded_symbols) > 0:
+        if unexpanded_symbols > 0:
             return Individual.DEFAULT_PHENOTYPE, used_input
         else:
             str_output: str = "".join(output)
@@ -222,6 +222,9 @@ class Individual(object):
         self.used_input: int = 0
 
     def get_fitness(self) -> float:
+        """
+        Return individual fitness
+        """
         return self.fitness
 
     def __str__(self) -> str:
@@ -297,6 +300,9 @@ def map_input_with_grammar(individual: Individual, grammar: Grammar) -> Individu
 
 
 class FitnessFunction(object):
+    """
+    Fitness function abstract class
+    """
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         raise NotImplementedError("Define in subclass")
 
@@ -342,7 +348,7 @@ def evaluate_fitness(
     individuals: List[Individual],
     grammar: Grammar,
     fitness_function: FitnessFunction,
-    param: Dict[str, Any] = {},
+    param: Dict[str, Any],
 ) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
 
@@ -407,7 +413,7 @@ def variation(parents: List[Individual], param: Dict[str, Any]) -> List[Individu
     ###################
     # Mutation
     ###################
-    for i in range(len(new_individuals)):
+    for i, _ in enumerate(new_individuals):
         new_individuals[i] = int_flip_mutation(new_individuals[i], param["mutation_probability"])
 
     assert param["population_size"] == len(new_individuals)
@@ -509,8 +515,7 @@ def write_run_output(
     :type param: dict
     """
     _hist: DefaultDict[str, int] = collections.defaultdict(int)
-    for k, v in param["cache"].items():
-        # TODO better key?
+    for v in param["cache"].values():
         _hist[str(v)] += 1
 
     print(
@@ -972,5 +977,5 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    run(args)
+    ARGS = parse_arguments()
+    run(ARGS)
