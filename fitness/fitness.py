@@ -19,6 +19,7 @@ class SRFitness(FitnessFunction):
         exemplars: Exemplars
         symbolic_expression: Symbolic expression
     """
+
     def __init__(self, param: Dict[str, Any]) -> None:
         """
         Set class attributes for exemplars and symbolic expression
@@ -66,6 +67,7 @@ class SRExpression(SRFitness):
     """
     Symbolic expression
     """
+
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         """
         Evaluate symbolic expression and return negated fitness.
@@ -94,6 +96,7 @@ class SRExemplar(SRFitness):
     """
     Exemplars, e.g. x[0], x[1], x[2], x[-1] is considered the target value
     """
+
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         """
         Evaluate exemplars and return fitness.

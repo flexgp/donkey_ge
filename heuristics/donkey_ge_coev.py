@@ -76,10 +76,7 @@ class CoevPopulation(Population):
 
 
 def evaluate(
-    individual: Individual,
-    fitness_function: Any,
-    inds: List[Individual],
-    cache: Dict[str, float],
+    individual: Individual, fitness_function: Any, inds: List[Individual], cache: Dict[str, float]
 ) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
     :param individual:
@@ -158,8 +155,12 @@ def search_loop_coevolution(
     # Evaluate fitness
     param["cache"] = collections.OrderedDict()
 
-    stats_dict: collections.OrderedDict[str, Any] = collections.OrderedDict()  # pylint: disable=unsubscriptable-object
-    best_ever: collections.OrderedDict[str, Individual] = collections.OrderedDict()  # pylint: disable=unsubscriptable-object
+    stats_dict: collections.OrderedDict[
+        str, Any
+    ] = collections.OrderedDict()  # pylint: disable=unsubscriptable-object
+    best_ever: collections.OrderedDict[
+        str, Individual
+    ] = collections.OrderedDict()  # pylint: disable=unsubscriptable-object
 
     for key, population in populations.items():
         start_time = time.time()

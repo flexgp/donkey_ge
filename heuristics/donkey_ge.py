@@ -303,6 +303,7 @@ class FitnessFunction(object):
     """
     Fitness function abstract class
     """
+
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         raise NotImplementedError("Define in subclass")
 

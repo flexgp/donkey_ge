@@ -9,6 +9,7 @@ class SymbolicRegression:
         exemplars
         symbolic_expression
     """
+
     def __init__(
         self, exemplars: List[List[float]], symbolic_expression: Callable[[List[float]], float]
     ) -> None:
