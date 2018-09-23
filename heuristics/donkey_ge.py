@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 import math
 import time
-
 import argparse
 import collections
 import copy
@@ -503,18 +502,8 @@ def search_loop(population: Population, param: Dict[str, Any]) -> Individual:
     return best_ever
 
 
-def write_run_output(
-    generation: int, stats: Dict[str, List[Number]], param: Dict[str, Any]
+def print_cache_stats(generation: int, param: Dict[str, Any]
 ) -> None:
-    """Write run stats to files.
-
-    :param generation: Generation number
-    :type generation: int
-    :param stats: Collected statistics of run
-    :type stats: dict
-    :param param: Parameters
-    :type param: dict
-    """
     _hist: DefaultDict[str, int] = collections.defaultdict(int)
     for v in param["cache"].values():
         _hist[str(v)] += 1
@@ -527,13 +516,30 @@ def write_run_output(
         )
     )
 
-    out_file_name = "donkey_ge"
+
+def get_out_file_name(out_file_name: str, param: Dict[str, Any]) -> str:
     if "output_dir" in param:
         output_dir = param["output_dir"]
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
         out_file_name = os.path.join(output_dir, out_file_name)
+    return out_file_name
 
+
+def write_run_output(
+        generation: int, stats: Dict[str, List[Number]], param: Dict[str, Any]
+) -> None:
+    """Write run stats to files.
+
+    :param generation: Generation number
+    :type generation: int
+    :param stats: Collected statistics of run
+    :type stats: dict
+    :param param: Parameters
+    :type param: dict
+    """
+    print_cache_stats(generation, param)
+    out_file_name = get_out_file_name("donkey_ge", param)
     _out_file_name = "{}_settings.out".format(out_file_name)
     with open(_out_file_name, "w") as out_file:
         for k, v in param.items():
