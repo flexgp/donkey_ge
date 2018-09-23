@@ -180,7 +180,7 @@ class Grammar(object):
             cnt += 1
 
         # Not fully expanded
-        if unexpanded_symbols > 0:
+        if unexpanded_symbols:
             return Individual.DEFAULT_PHENOTYPE, used_input
         else:
             str_output: str = "".join(output)
