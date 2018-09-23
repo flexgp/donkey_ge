@@ -231,15 +231,18 @@ class Individual(object):
 
 
 class Population(object):
-    """A population container"""
+    """A population container
+
+    Attributes:
+        fitness_function:
+        grammar:
+        individuals:
+    """
 
     def __init__(
         self, fitness_function: Any, grammar: Grammar, individuals: List[Individual]
     ) -> None:
         """Container for a population.
-
-        TODO use a data structure that maintains order of individuals based on
-        fitness to reduce sorting
 
         :param fitness_function:
         :type fitness_function: function
