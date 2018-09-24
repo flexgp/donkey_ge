@@ -545,7 +545,9 @@ def write_run_output(
     out_file_name = get_out_file_name("donkey_ge", param)
     _out_file_name = "{}_settings.json".format(out_file_name)
     with open(_out_file_name, "w") as out_file:
-        json.dump(param, out_file, sort_keys=True, indent=1)
+        for k, v in param.items():
+            if k != "cache":
+                json.dump({k: v}, out_file, indent=1)
 
     for k, v in stats.items():
         _out_file_name = "{}_{}.json".format(out_file_name, k)

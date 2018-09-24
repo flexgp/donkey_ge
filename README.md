@@ -78,10 +78,10 @@ search progress for each iteration, see `donkey_ge.py:print_stats`.
 
 The output files have each generation on a row, and each individual separated by a `,`. They are written to:
 ```
-donkey_ge_*_fitness_values.csv
-donkey_ge_*_length_values.csv
-donkey_ge_*_size_values.csv
-donkey_ge_*_solution_values.csv
+donkey_ge_*_fitness_values.json
+donkey_ge_*_length_values.json
+donkey_ge_*_size_values.json
+donkey_ge_*_solution_values.json
 ```
 
 ### Usage

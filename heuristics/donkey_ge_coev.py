@@ -1,5 +1,7 @@
 from collections import OrderedDict, defaultdict
 import time
+
+import json
 import random
 from typing import Any, List, Dict
 from numbers import Number
@@ -18,7 +20,7 @@ from heuristics.donkey_ge import (
     parse_arguments,
     Population,
     print_cache_stats,
-    get_out_file_name
+    get_out_file_name,
 )
 
 __author__ = "Erik Hemberg"
@@ -261,22 +263,18 @@ def write_run_output(
     """
     print_cache_stats(generation, param)
     out_file_name = get_out_file_name("donkey_ge_coev", param)
-    _out_file_name = "%s_settings.out" % out_file_name
+    _out_file_name = "%s_settings.json" % out_file_name
     with open(_out_file_name, "w") as out_file:
         for k, v in param.items():
             if k != "cache":
-                out_file.write("%s: %s\n" % (k, str(v)))
+                json.dump({k: v}, out_file, indent=1)
 
     for key in populations.keys():
         stats = stats_dict[key]
         for k, v in stats.items():
-            _out_file_name = "%s_%s_%s.csv" % (out_file_name, key, k)
+            _out_file_name = "%s_%s_%s.json" % (out_file_name, key, k)
             with open(_out_file_name, "w") as out_file:
-                for line in v:
-                    if k == "solution_values":
-                        out_file.write("%s\n" % (";".join(map(str, line))))
-                    else:
-                        out_file.write("%s\n" % (",".join(map(str, line))))
+                json.dump(stats, out_file, indent=1)
 
 
 def run(param: Dict[str, Any]) -> Dict[str, Individual]:
