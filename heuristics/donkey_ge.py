@@ -552,7 +552,7 @@ def write_run_output(
     for k, v in stats.items():
         _out_file_name = "{}_{}.json".format(out_file_name, k)
         with open(_out_file_name, "w") as out_file:
-            json.dump(stats, out_file, indent=1)
+            json.dump({k: v}, out_file, indent=1)
 
 
 def print_stats(
