@@ -1,7 +1,8 @@
-import collections
+from collections import OrderedDict, defaultdict
 import time
+
+import json
 import random
-import os
 from typing import Any, List, Dict
 from numbers import Number
 
@@ -18,6 +19,8 @@ from heuristics.donkey_ge import (
     initialise_population,
     parse_arguments,
     Population,
+    print_cache_stats,
+    get_out_file_name,
 )
 
 __author__ = "Erik Hemberg"
@@ -76,10 +79,7 @@ class CoevPopulation(Population):
 
 
 def evaluate(
-    individual: Individual,
-    fitness_function: Any,
-    inds: List[Individual] = [],
-    cache: Dict[str, float] = {},
+    individual: Individual, fitness_function: Any, inds: List[Individual], cache: Dict[str, float]
 ) -> Individual:
     """Evaluates phenotype in fitness_function function and sets fitness_function.
     :param individual:
@@ -105,8 +105,8 @@ def evaluate_fitness(
     individuals: List[Individual],
     grammar: Grammar,
     fitness_function: Any,
-    adversaries: List[Individual] = [],
-    param: Dict[str, Any] = {},
+    adversaries: List[Individual],
+    param: Dict[str, Any],
 ) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
     :param individuals:
@@ -156,14 +156,14 @@ def search_loop_coevolution(
     """
 
     # Evaluate fitness
-    param["cache"] = collections.OrderedDict()
+    param["cache"] = OrderedDict()
 
-    stats_dict: collections.OrderedDict[str, Any] = collections.OrderedDict()
-    best_ever: collections.OrderedDict[str, Individual] = collections.OrderedDict()
+    stats_dict: OrderedDict[str, Any] = OrderedDict()  # pylint: disable=unsubscriptable-object
+    _best: OrderedDict[str, Individual] = OrderedDict()  # pylint: disable=unsubscriptable-object
 
     for key, population in populations.items():
         start_time = time.time()
-        stats_dict[key] = collections.defaultdict(list)
+        stats_dict[key] = defaultdict(list)
         stats = stats_dict[key]
         grammar = population.grammar
         fitness_function = population.fitness_function
@@ -176,7 +176,7 @@ def search_loop_coevolution(
         )
         # Set best solution
         population.individuals = sort_population(population.individuals)
-        best_ever[key] = population.individuals[0]
+        _best[key] = population.individuals[0]
 
         # Print the stats of the populations
         print(key, len(param["cache"]))
@@ -207,7 +207,7 @@ def search_loop_coevolution(
             # TODO do not bother with elite_number of variations
             new_individuals = variation(parents, param)
 
-            for i in range(len(elites)):
+            for i, _ in enumerate(elites):
                 new_individuals[i] = elites[i]
 
             # Evaluate fitness
@@ -228,7 +228,7 @@ def search_loop_coevolution(
 
             # Set best solution
             population.individuals = sort_population(population.individuals)
-            best_ever[key] = population.individuals[0]
+            _best[key] = population.individuals[0]
 
             # Print the stats of the populations
             print(key, len(param["cache"]))
@@ -239,10 +239,10 @@ def search_loop_coevolution(
 
     write_run_output(generation, stats_dict, populations, param)
 
-    best_solution_str = ["%s: %s" % (k, v) for k, v in best_ever.items()]
+    best_solution_str = ["%s: %s" % (k, v) for k, v in _best.items()]
     print("Best solution: %s" % (",".join(best_solution_str)))
 
-    return best_ever
+    return _best
 
 
 def write_run_output(
@@ -261,42 +261,20 @@ def write_run_output(
     :param param: Parameters
     :type param: dict
     """
-    _hist: Dict[str, int] = collections.defaultdict(int)
-    for k, v in param["cache"].items():
-        _hist[str(v)] += 1
-
-    print(
-        "Cache entries:%d Total Fitness Evaluations:%d Fitness Values:%d"
-        % (
-            len(param["cache"].keys()),
-            generation * param["population_size"] ** 2,
-            len(_hist.keys()),
-        )
-    )
-
-    out_file_name = "donkey_ge"
-    if "output_dir" in param:
-        output_dir = param["output_dir"]
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
-        out_file_name = os.path.join(output_dir, out_file_name)
-
-    _out_file_name = "%s_settings.out" % out_file_name
+    print_cache_stats(generation, param)
+    out_file_name = get_out_file_name("donkey_ge_coev", param)
+    _out_file_name = "%s_settings.json" % out_file_name
     with open(_out_file_name, "w") as out_file:
         for k, v in param.items():
             if k != "cache":
-                out_file.write("%s: %s\n" % (k, str(v)))
+                json.dump({k: v}, out_file, indent=1)
 
     for key in populations.keys():
         stats = stats_dict[key]
         for k, v in stats.items():
-            _out_file_name = "%s_%s_%s.csv" % (out_file_name, key, k)
+            _out_file_name = "%s_%s_%s.json" % (out_file_name, key, k)
             with open(_out_file_name, "w") as out_file:
-                for line in v:
-                    if k == "solution_values":
-                        out_file.write("%s\n" % (";".join(map(str, line))))
-                    else:
-                        out_file.write("%s\n" % (",".join(map(str, line))))
+                json.dump({k: v}, out_file, indent=1)
 
 
 def run(param: Dict[str, Any]) -> Dict[str, Individual]:
@@ -335,8 +313,8 @@ def run(param: Dict[str, Any]) -> Dict[str, Individual]:
     ###########################
     # Create initial population
     ###########################
-    populations: collections.OrderedDict = collections.OrderedDict()
-    for key, value in param["populations"].items():
+    populations: OrderedDict = OrderedDict()
+    for key in param["populations"].keys():
         p_dict = param["populations"][key]
         grammar = Grammar(p_dict["bnf_grammar"])
         grammar.read_bnf_file(grammar.file_name)
@@ -360,5 +338,5 @@ def run(param: Dict[str, Any]) -> Dict[str, Individual]:
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    run(args)
+    ARGS = parse_arguments()
+    run(ARGS)

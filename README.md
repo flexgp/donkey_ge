@@ -78,10 +78,10 @@ search progress for each iteration, see `donkey_ge.py:print_stats`.
 
 The output files have each generation on a row, and each individual separated by a `,`. They are written to:
 ```
-donkey_ge_*_fitness_values.csv
-donkey_ge_*_length_values.csv
-donkey_ge_*_size_values.csv
-donkey_ge_*_solution_values.csv
+donkey_ge_*_fitness_values.json
+donkey_ge_*_length_values.json
+donkey_ge_*_size_values.json
+donkey_ge_*_solution_values.json
 ```
 
 ### Usage
@@ -120,17 +120,7 @@ Some tests are written with *Hypothesis*, http://hypothesis.readthedocs.io/en/ma
 
 ## Development
 
-- For formatting use `black` e.g.
-```
-black --line-length 100 --py36 main.py fitness/ heuristics/ tests/test_main.py tests/test_hypothesis_fitness.py tests/test_hypothesis_donkey_ge.py
-```
-
-- Use `flake8`, e.g.
-```
-flake8 main.py fitness/ heuristics/
-```
-
-- Use `mypy`
+Use `pre-commit.sh` as a pre-commit hook. `ln -s ../../pre-commit.sh .git/hooks/pre-commit`
 
 ## Documentation
 

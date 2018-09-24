@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 import math
 import time
-
 import argparse
 import collections
 import copy
@@ -10,11 +9,10 @@ import random
 import re
 from typing import List, Tuple, Any, Dict, Optional, DefaultDict, Sequence, Union
 from numbers import Number
+import json
 
 __author__ = "Erik Hemberg"
 """GE implementation. Bastardization of PonyGP and PonyGE.
-
-TODO make version that does not require numpy...
 
 """
 
@@ -63,11 +61,11 @@ class Grammar(object):
         # TODO use a non-regexp parser
         # TODO does not handle newlines well
 
-        :param lines: BNF grammar
-        :type lines: str
+        :param all_lines: BNF grammar
+        :type all_lines: str
 
         """
-        assert all_lines is not ""
+        assert all_lines != ""
         _lines = all_lines
         non_terminal_pattern = re.compile(
             r"""(# Group  so `split()` returns all NTs and Ts.
@@ -117,7 +115,7 @@ class Grammar(object):
                     tmp_production = []
                     for symbol in non_terminal_pattern.split(production):
                         symbol = symbol.replace(r"\<", "<").replace(r"\>", ">")
-                        if len(symbol) == 0:
+                        if not symbol:
                             continue
                         elif non_terminal_pattern.match(symbol):
                             tmp_production.append((symbol, self.NT))
@@ -162,7 +160,7 @@ class Grammar(object):
         cnt = 0
         break_out = len(inputs) * len(self.terminals)
         unexpanded_symbols: List[Tuple[str, str]] = [self.start_rule]
-        while len(unexpanded_symbols) > 0 and used_input < len(inputs) and cnt < break_out:
+        while unexpanded_symbols and used_input < len(inputs) and cnt < break_out:
             # Expand a production
             current_symbol: Tuple[str, str] = unexpanded_symbols.pop(0)
             # Set output if it is a terminal
@@ -182,7 +180,7 @@ class Grammar(object):
             cnt += 1
 
         # Not fully expanded
-        if len(unexpanded_symbols) > 0:
+        if unexpanded_symbols:
             return Individual.DEFAULT_PHENOTYPE, used_input
         else:
             str_output: str = "".join(output)
@@ -192,10 +190,10 @@ class Grammar(object):
 class Individual(object):
     """A GE individual
 
-    :param codon_size: Max integer value for an input element
-    :type codon_size: int
-    :param max_length: Length of input
-    :type max_length: int
+    Attributes:
+        codon_size: Max integer value for an input element
+        max_length: Length of input
+        DEFAULT_PHENOTYPE:
 
     """
 
@@ -224,6 +222,9 @@ class Individual(object):
         self.used_input: int = 0
 
     def get_fitness(self) -> float:
+        """
+        Return individual fitness
+        """
         return self.fitness
 
     def __str__(self) -> str:
@@ -231,15 +232,18 @@ class Individual(object):
 
 
 class Population(object):
-    """A population container"""
+    """A population container
+
+    Attributes:
+        fitness_function:
+        grammar:
+        individuals:
+    """
 
     def __init__(
         self, fitness_function: Any, grammar: Grammar, individuals: List[Individual]
     ) -> None:
         """Container for a population.
-
-        TODO use a data structure that maintains order of individuals based on
-        fitness to reduce sorting
 
         :param fitness_function:
         :type fitness_function: function
@@ -299,6 +303,10 @@ def map_input_with_grammar(individual: Individual, grammar: Grammar) -> Individu
 
 
 class FitnessFunction(object):
+    """
+    Fitness function abstract class
+    """
+
     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
         raise NotImplementedError("Define in subclass")
 
@@ -344,7 +352,7 @@ def evaluate_fitness(
     individuals: List[Individual],
     grammar: Grammar,
     fitness_function: FitnessFunction,
-    param: Dict[str, Any] = {},
+    param: Dict[str, Any],
 ) -> List[Individual]:
     """Perform the fitness evaluation for each individual of the population.
 
@@ -409,7 +417,7 @@ def variation(parents: List[Individual], param: Dict[str, Any]) -> List[Individu
     ###################
     # Mutation
     ###################
-    for i in range(len(new_individuals)):
+    for i, _ in enumerate(new_individuals):
         new_individuals[i] = int_flip_mutation(new_individuals[i], param["mutation_probability"])
 
     assert param["population_size"] == len(new_individuals)
@@ -498,6 +506,29 @@ def search_loop(population: Population, param: Dict[str, Any]) -> Individual:
     return best_ever
 
 
+def print_cache_stats(generation: int, param: Dict[str, Any]) -> None:
+    _hist: DefaultDict[str, int] = collections.defaultdict(int)
+    for v in param["cache"].values():
+        _hist[str(v)] += 1
+
+    print(
+        "Cache entries:{} Total Fitness Evaluations:{} Fitness Values:{}".format(
+            len(param["cache"].keys()),
+            generation * param["population_size"] ** 2,
+            len(_hist.keys()),
+        )
+    )
+
+
+def get_out_file_name(out_file_name: str, param: Dict[str, Any]) -> str:
+    if "output_dir" in param:
+        output_dir = param["output_dir"]
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+        out_file_name = os.path.join(output_dir, out_file_name)
+    return out_file_name
+
+
 def write_run_output(
     generation: int, stats: Dict[str, List[Number]], param: Dict[str, Any]
 ) -> None:
@@ -510,40 +541,18 @@ def write_run_output(
     :param param: Parameters
     :type param: dict
     """
-    _hist: DefaultDict[str, int] = collections.defaultdict(int)
-    for k, v in param["cache"].items():
-        # TODO better key?
-        _hist[str(v)] += 1
-
-    print(
-        "Cache entries:{} Total Fitness Evaluations:{} Fitness Values:{}".format(
-            len(param["cache"].keys()),
-            generation * param["population_size"] ** 2,
-            len(_hist.keys()),
-        )
-    )
-
-    out_file_name = "donkey_ge"
-    if "output_dir" in param:
-        output_dir = param["output_dir"]
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
-        out_file_name = os.path.join(output_dir, out_file_name)
-
-    _out_file_name = "{}_settings.out".format(out_file_name)
+    print_cache_stats(generation, param)
+    out_file_name = get_out_file_name("donkey_ge", param)
+    _out_file_name = "{}_settings.json".format(out_file_name)
     with open(_out_file_name, "w") as out_file:
         for k, v in param.items():
             if k != "cache":
-                out_file.write("{}: {}\n".format(k, str(v)))
+                json.dump({k: v}, out_file, indent=1)
 
     for k, v in stats.items():
-        _out_file_name = "{}_{}.csv".format(out_file_name, k)
+        _out_file_name = "{}_{}.json".format(out_file_name, k)
         with open(_out_file_name, "w") as out_file:
-            for line in v:
-                if k == "solution_values":
-                    out_file.write("{}\n".format(";".join(map(str, line))))
-                else:
-                    out_file.write("{}\n".format(",".join(map(str, line))))
+            json.dump({k: v}, out_file, indent=1)
 
 
 def print_stats(
@@ -974,5 +983,5 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    run(args)
+    ARGS = parse_arguments()
+    run(ARGS)

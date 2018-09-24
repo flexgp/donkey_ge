@@ -1,6 +1,7 @@
 import argparse
-import yaml
 from typing import Any, Dict
+
+import yaml
 
 from heuristics import donkey_ge, donkey_ge_coev
 
@@ -51,6 +52,9 @@ def parse_arguments() -> Dict[str, Any]:
 
 
 def main() -> Dict[str, Any]:
+    """
+    Run donkey_ge.
+    """
     # Parse CLI arguments
     args = parse_arguments()
     if args["coev"]:
