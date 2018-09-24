@@ -9,6 +9,7 @@ import random
 import re
 from typing import List, Tuple, Any, Dict, Optional, DefaultDict, Sequence, Union
 from numbers import Number
+import json
 
 __author__ = "Erik Hemberg"
 """GE implementation. Bastardization of PonyGP and PonyGE.
@@ -542,20 +543,14 @@ def write_run_output(
     """
     print_cache_stats(generation, param)
     out_file_name = get_out_file_name("donkey_ge", param)
-    _out_file_name = "{}_settings.out".format(out_file_name)
+    _out_file_name = "{}_settings.json".format(out_file_name)
     with open(_out_file_name, "w") as out_file:
-        for k, v in param.items():
-            if k != "cache":
-                out_file.write("{}: {}\n".format(k, str(v)))
+        json.dump(param, out_file, sort_keys=True, indent=1)
 
     for k, v in stats.items():
-        _out_file_name = "{}_{}.csv".format(out_file_name, k)
+        _out_file_name = "{}_{}.json".format(out_file_name, k)
         with open(_out_file_name, "w") as out_file:
-            for line in v:
-                if k == "solution_values":
-                    out_file.write("{}\n".format(";".join(map(str, line))))
-                else:
-                    out_file.write("{}\n".format(",".join(map(str, line))))
+            json.dump(stats, out_file, indent=1)
 
 
 def print_stats(

@@ -5,20 +5,35 @@
 # Second command filters only Python files
 # Put those file names in a file
 #   (can't use xargs because we want to look at Pylint's exit code)
-git diff --name-only --diff-filter=ACM | grep ".*\.py$" > python_files_to_lint
+git diff --name-only --diff-filter=ACM | grep ".*\.py$" > python_files_to_lint;
 if [ ! -s python_files_to_lint ]; then
-    echo "No Python files being committed\n"
-    rm python_files_to_lint
-    exit 0
+    echo "No Python files being committed\n";
+    rm python_files_to_lint;
+    exit 0;
 fi
-python_files="$(paste -s -d ' ' python_files_to_lint)"
-exit 1
-echo "Black\n"
+python_files="$(paste -s -d ' ' python_files_to_lint)";
+echo "Examine: ${python_files}";
+echo "Black\n";
 black --line-length 100 --py36 ${python_files}
+exit_status=$?
+if [ $exit_status -gt 0 ]; then
+    echo "Black messages.:)"
+    exit 1
+fi
 echo "flake8\n"
 flake8 --max-line-length=100 ${python_files}
+exit_status=$?
+if [ $exit_status -gt 0 ]; then
+    echo "flake8 messages.:)"
+    exit 1
+fi
 echo "MyPy\n"
 mypy --strict ${python_files}
+exit_status=$?
+if [ $exit_status -gt 0 ]; then
+    echo "mypy messages.:)"
+    exit 1
+fi
 
 pylint ${python_files}
 exit_status=$?
