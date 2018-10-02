@@ -33,7 +33,7 @@ Time: 0.006 Best solution:Ind: lambda x: x[0] * 4 * 5 * 0 - 4 + x[0] + x[0] + 1 
 
 ####Exemplars
 ```
-python main.py -f tests/configurations/symbolic_regression.yml -o results
+python main.py -f tests/configurations/exemplars.yml -o results
 ```
 
 Gives output like:
