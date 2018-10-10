@@ -12,7 +12,8 @@ class TestMain(unittest.TestCase):
         main.main()
 
     def test_one_sr_expression(self):
-        sys.argv = ARGS + ["-f", "tests/configurations/symbolic_regression.yml"]
+        sys.argv = ARGS + \
+                   ["-f", "tests/configurations/symbolic_regression.yml"]
         main.main()
 
     def test_one_sr_coev(self):
