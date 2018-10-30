@@ -15,7 +15,7 @@ Paths are relative the repository root.
 
 ### Tutorials
 
-See `tutorials`. The `tests` can also help understand the program.
+See [tutorials](tutorials). The [tests](tests) can also help understand the program.
 
 ### One way evolutionary search
 
