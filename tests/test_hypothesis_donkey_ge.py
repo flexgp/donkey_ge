@@ -21,8 +21,7 @@ def get_run_param():
             "seed": hs.integers(min_value=0, max_value=10),
             "crossover_probability": hs.floats(min_value=0.0, max_value=1.0),
             "mutation_probability": hs.floats(min_value=0.0, max_value=1.0),
-            "integer_input_element_max":
-                hs.integers(min_value=1, max_value=1000),
+            "integer_input_element_max": hs.integers(min_value=1, max_value=1000),
             "bnf_grammar": hs.just("tests/grammars/symbolic_regression.bnf"),
             "fitness_function": hs.just(
                 {
@@ -44,8 +43,7 @@ def get_individual():
     return individual
 
 
-def get_individual_with_fitness(genome, codon_size, max_length, fitness, rnd,
-                                used_input=None):
+def get_individual_with_fitness(genome, codon_size, max_length, fitness, rnd, used_input=None):
     donkey_ge.Individual.codon_size = codon_size
     donkey_ge.Individual.max_length = max_length
     individual = donkey_ge.Individual(genome)
@@ -83,8 +81,7 @@ def get_generational_replacement():
     _m = hs.shared(n, "same")
     _ps = hs.shared(n, "same")
     _es = hs.shared(n, "same")
-    elite_size = _es.flatmap(
-        lambda x: hs.integers(min_value=0, max_value=x - 1))
+    elite_size = _es.flatmap(lambda x: hs.integers(min_value=0, max_value=x - 1))
     new_population = get_individuals(_n)
     old_population = get_individuals(_m)
 
@@ -103,8 +100,7 @@ def get_tournament_selection():
     _n = hs.shared(n, "same")
     _m = hs.shared(n, "same")
     population_size = hs.shared(n, "same")
-    tournament_size = _m.flatmap(
-        lambda x: hs.integers(min_value=1, max_value=x))
+    tournament_size = _m.flatmap(lambda x: hs.integers(min_value=1, max_value=x))
     population = _n.flatmap(lambda x: get_individuals(hs.just(x)))
 
     return hs.fixed_dictionaries(
@@ -288,8 +284,7 @@ class TestMuleGE(unittest.TestCase):
         sorted_individuals = donkey_ge.sort_population(individuals)
         for i in range(1, len(sorted_individuals)):
             self.assertGreaterEqual(
-                sorted_individuals[i - 1].fitness,
-                sorted_individuals[i].fitness
+                sorted_individuals[i - 1].fitness, sorted_individuals[i].fitness
             )
 
     @hypothesis.given(get_generational_replacement())
@@ -325,8 +320,7 @@ class TestMuleGE(unittest.TestCase):
         mutation_probability = args["mutation_probability"]
         donkey_ge.Individual.codon_size = args["codon_size"]
         org_genome = individual.genome[:]
-        new_individual = donkey_ge.int_flip_mutation(
-            individual, mutation_probability)
+        new_individual = donkey_ge.int_flip_mutation(individual, mutation_probability)
 
         self.assertIs(new_individual, individual)
         self.assertIs(new_individual.genome, individual.genome)
@@ -337,8 +331,7 @@ class TestMuleGE(unittest.TestCase):
             cnt += 1
 
         if not same:
-            self.assertEqual(new_individual.phenotype,
-                             donkey_ge.Individual.DEFAULT_PHENOTYPE)
+            self.assertEqual(new_individual.phenotype, donkey_ge.Individual.DEFAULT_PHENOTYPE)
             self.assertEqual(new_individual.used_input, 0)
             self.assertEqual(new_individual.fitness, donkey_ge.DEFAULT_FITNESS)
 
@@ -380,8 +373,7 @@ class TestMuleGE(unittest.TestCase):
         # present in bnf_string
         for terminal in grammar.terminals:
             try:
-                self.assertIn(terminal, terminals, "%s not in %s" %
-                              (terminal, terminals))
+                self.assertIn(terminal, terminals, "%s not in %s" % (terminal, terminals))
             except AssertionError:
                 # When parsing terminals two or more subsequent
                 # terminals can be parsed as one. Therefore we need to
@@ -416,12 +408,10 @@ class TestMuleGE(unittest.TestCase):
             individual = donkey_ge.Individual(inputs)
             _individual = donkey_ge.map_input_with_grammar(individual, grammar)
             self.assertIs(individual, _individual)
-            self.assertNotEqual(_individual.phenotype,
-                                donkey_ge.Individual.DEFAULT_PHENOTYPE)
+            self.assertNotEqual(_individual.phenotype, donkey_ge.Individual.DEFAULT_PHENOTYPE)
             self.assertGreater(_individual.used_input, -1)
         except ValueError:
-            self.assertEqual(individual.phenotype,
-                             donkey_ge.Individual.DEFAULT_PHENOTYPE)
+            self.assertEqual(individual.phenotype, donkey_ge.Individual.DEFAULT_PHENOTYPE)
 
     @hypothesis.given(param=get_run_param(), rnd=hs.random_module())
     def test_run(self, param, rnd):
@@ -439,15 +429,13 @@ class TestMuleGE(unittest.TestCase):
         hypothesis.assume(param["elite_size"] < param["population_size"])
 
         # TODO too much setup, can it be refactored...
-        fitness_function = heuristics.donkey_ge.get_fitness_function(
-            param["fitness_function"])
+        fitness_function = heuristics.donkey_ge.get_fitness_function(param["fitness_function"])
         grammar = donkey_ge.Grammar(param["bnf_grammar"])
         grammar.read_bnf_file(grammar.file_name)
         donkey_ge.Individual.codon_size = param["codon_size"]
         donkey_ge.Individual.max_length = param["max_length"]
         individuals = donkey_ge.initialise_population(param["population_size"])
-        population = donkey_ge.Population(
-            fitness_function, grammar, individuals)
+        population = donkey_ge.Population(fitness_function, grammar, individuals)
 
         try:
             _individual = donkey_ge.search_loop(population, param)

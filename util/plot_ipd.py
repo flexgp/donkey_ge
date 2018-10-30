@@ -6,7 +6,7 @@ import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
 
-from fitness.prisoners_dilemma import PrisonersDilemma
+from fitness.game_theory_game import PrisonersDilemma
 
 
 def plot_iterated_prisoners_dilemma(
@@ -15,6 +15,18 @@ def plot_iterated_prisoners_dilemma(
     out_path: str,
     name: str = "ipd_test.pdf",
 ) -> None:
+    """
+    Plot the choices and payoffs for each iteration of iterated prisoners dilemma.
+
+    The first iteration is at the bottom, the choice, payoff and total are connected with edges,
+    and color indicates value:
+
+    - Circle is choice
+
+    - Triangle is payoff for a choice
+
+    - Square is the total payoff
+    """
     assert os.path.exists(out_path)
 
     graph = nx.Graph()
@@ -102,12 +114,15 @@ def plot_iterated_prisoners_dilemma(
 
 
 def get_position(x: float, data: List[Any], positions: Dict[str, Tuple[float, float]]) -> None:
+    """Helper for assigning x, y position
+    """
     ys: List[float] = [_ for _ in np.linspace(0, 0.9, num=len(data))]
     for i, node in enumerate(data):
         positions[node] = (x, ys[i])
 
 
 def get_history_color(choice: str) -> str:
+    """Return choice color from the history"""
     if choice == PrisonersDilemma.DEFECT:
         _color = "r"
     elif choice == PrisonersDilemma.COOPERATE:
@@ -119,11 +134,12 @@ def get_history_color(choice: str) -> str:
 
 
 def plot_ipd_from_file(in_file_name: str, out_path: str = ".", name: str = "ipd_test.pdf") -> None:
+    """Plot from a Prisoners Dilemma statistics file"""
     with open(in_file_name, "r") as in_file:
         json_data = json.load(in_file)
 
     for i, data in enumerate(json_data):
         _name = "{}_{}".format(i, name)
         plot_iterated_prisoners_dilemma(
-            histories=data["history"], sentences=data["sentences"], out_path=out_path, name=_name
+            histories=data["history"], sentences=data["payoffs"], out_path=out_path, name=_name
         )

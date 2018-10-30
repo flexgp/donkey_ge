@@ -1,5 +1,6 @@
+import sys
 import argparse
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import yaml
 
@@ -10,11 +11,11 @@ __author__ = "Erik Hemberg"
 
 
 """
-Main function for donkey_ge. Parses YML config file and call donkey_ge.
+Main function for donkey_ge. Parses YML config file and calls donkey_ge.
 """
 
 
-def parse_arguments() -> Dict[str, Any]:
+def parse_arguments(param: List[str]) -> Dict[str, Any]:
     """
     Parse command line arguments (`sys.argv`).
 
@@ -38,7 +39,7 @@ def parse_arguments() -> Dict[str, Any]:
     )
     parser.add_argument("--coev", action="store_true", help="Coevolution")
 
-    _args = parser.parse_args()
+    _args = parser.parse_args(param)
 
     # Read configuration file
     with open(_args.configuration_file, "r") as configuration_file:
@@ -51,12 +52,13 @@ def parse_arguments() -> Dict[str, Any]:
     return settings
 
 
-def main() -> Dict[str, Any]:
+def main(args: List[str]) -> Dict[str, Any]:
     """
     Run donkey_ge.
     """
     # Parse CLI arguments
-    args = parse_arguments()
+    args = parse_arguments(args)
+    # Run heuristic search
     if args["coev"]:
         donkey_ge_coev.run(args)
     else:
@@ -66,4 +68,4 @@ def main() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

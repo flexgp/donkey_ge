@@ -3,7 +3,7 @@ import os
 import unittest
 
 from util.plot_ipd import plot_iterated_prisoners_dilemma, plot_ipd_from_file
-from fitness.prisoners_dilemma import PrisonersDilemma
+from fitness.game_theory_game import PrisonersDilemma
 
 
 class TestUtil(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestUtil(unittest.TestCase):
     def test_one_plot_ipd_from_file(self) -> None:
         file_name = "test_ipd.json"
         player_1 = lambda h, i: "C"
-        player_2 = lambda h, i: "C" if h[i][0] == "C" else "D"
+        player_2 = lambda h, i: "C" if h[i] == "C" else "D"
         n_iterations = 2
         memory_size = 1
         expected_file_name = "test_one_ipd.pdf"

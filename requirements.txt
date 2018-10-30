@@ -1,3 +1,6 @@
+networkx==2.2
+numpy==1.15.3
+matplotlib==3.0.1
+hypothesis==3.82.1
 recommonmark==0.4.0
-hypothesis==3.6.1
-PyYAML==3.13
+typing==3.6.6

@@ -545,9 +545,12 @@ def write_run_output(
     out_file_name = get_out_file_name("donkey_ge", param)
     _out_file_name = "{}_settings.json".format(out_file_name)
     with open(_out_file_name, "w") as out_file:
+        _settings: Dict[str, Any] = {}
         for k, v in param.items():
             if k != "cache":
-                json.dump({k: v}, out_file, indent=1)
+                _settings[k] = v
+                
+        json.dump(_settings, out_file, indent=1)
 
     for k, v in stats.items():
         _out_file_name = "{}_{}.json".format(out_file_name, k)
@@ -945,7 +948,6 @@ def run(param: Dict[str, Any]) -> Individual:
     ###########################
     # Evolutionary search
     ###########################
-    # TODO revise for stability
     best_ever = search_loop(population, param)
 
     # Display results
@@ -968,7 +970,7 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
     :return: Fitness function
     :rtype: Object
     """
-    from fitness.fitness import SRExpression, SRExemplar, IteratedPrisonersDilemma
+    from fitness.fitness import SRExpression, SRExemplar, IteratedPrisonersDilemma, IteratedHawkAndDove
 
     name = param["name"]
     fitness_function: FitnessFunction
@@ -978,6 +980,8 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
         fitness_function = SRExemplar(param)
     elif name == "IteratedPrisonersDilemma":
         fitness_function = IteratedPrisonersDilemma(param)
+    elif name == "HawkAndDove":
+        fitness_function = IteratedHawkAndDove(param)
     else:
         raise BaseException("Unknown fitness function: {}".format(name))
 
