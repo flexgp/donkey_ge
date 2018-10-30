@@ -76,7 +76,7 @@ Time: 0.019 Best solution:OrderedDict([('attacker', <heuristics.donkey_ge.Indivi
 `donkey_ge` prints some information to `stdout` regarding `settings` and
 search progress for each iteration, see `donkey_ge.py:print_stats`. 
 
-The output files have each generation on a row, and each individual separated by a `,`. They are written to:
+The output files have each generation as a list element, and each individual separated by a `,`. They are written to:
 ```
 donkey_ge_*_fitness_values.json
 donkey_ge_*_length_values.json

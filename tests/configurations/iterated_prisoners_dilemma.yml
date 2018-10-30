@@ -1,0 +1,15 @@
+population_size: 4
+max_length: 10
+elite_size: 1
+generations: 3
+tournament_size: 2
+seed: 1
+crossover_probability: 0.8
+mutation_probability: 0.1
+codon_size: 127
+integer_input_element_max: 1000
+bnf_grammar: "tests/grammars/iterated_prisoners_dilemma.bnf"
+fitness_function:
+    name: "IteratedPrisonersDilemma"
+    opponent: "lambda h, i: 'C'"
+    n_iterations: 4

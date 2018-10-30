@@ -968,7 +968,7 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
     :return: Fitness function
     :rtype: Object
     """
-    from fitness.fitness import SRExpression, SRExemplar
+    from fitness.fitness import SRExpression, SRExemplar, IteratedPrisonersDilemma
 
     name = param["name"]
     fitness_function: FitnessFunction
@@ -976,6 +976,8 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
         fitness_function = SRExpression(param)
     elif name == "SRExemplar":
         fitness_function = SRExemplar(param)
+    elif name == "IteratedPrisonersDilemma":
+        fitness_function = IteratedPrisonersDilemma(param)
     else:
         raise BaseException("Unknown fitness function: {}".format(name))
 

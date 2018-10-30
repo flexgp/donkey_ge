@@ -1,6 +1,12 @@
-from typing import List, Dict, Any
+"""Module for the fitness functions. A fitness function serves as an interface between
+the engagement environment and the search heuristic. It provides the engagement
+environment with the actions. It computes a fitness score based on the measurements
+from the engagement environment.
+"""
+from typing import List, Dict, Any, Tuple, Callable
 
 from fitness.symbolic_regression import SymbolicRegression
+from fitness.prisoners_dilemma import PrisonersDilemma
 from heuristics.donkey_ge import Individual, DEFAULT_FITNESS, FitnessFunction
 
 
@@ -117,6 +123,69 @@ class SRExemplar(SRFitness):
             fitnesses[i] = fitness
 
         fitness = mean(fitnesses)
+        return fitness
+
+
+class IteratedPrisonersDilemma(FitnessFunction):
+    """
+    Iterated Prisoners Dilemma fitness function
+
+    Note: There are faster ways of evaluating, this is for demonstration purposes.
+
+    Attributes:
+        n_iterations: Number of iterations of the Prisoners Dilemma
+        prisoners_dilemma: Prisoners Dilemma
+        opponent: Strategy of opponent
+        player: Strategy of player
+    """
+
+    def __init__(self, param: Dict[str, Any]) -> None:
+        """ Initialize object
+        """
+        self.n_iterations = param["n_iterations"]
+        self.prisoners_dilemma = PrisonersDilemma(self.n_iterations)
+        self.opponent = eval(param["opponent"])  # pylint: disable=eval-used
+        self.player = lambda x, y: ""
+
+    def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
+        """ Evaluate the strategy against the opponent and return fitness.
+        """
+        key: str = "{}-{}".format(fcn_str, self.opponent)
+        if key in cache:
+            fitness: float = cache[key]
+        else:
+            self.player: Callable[
+                [List[Tuple[str, str]], int], str
+            ] = eval(  # pylint: disable=eval-used
+                fcn_str
+            )
+            sentences, _ = self.prisoners_dilemma.run(self.player, self.opponent)
+            fitness = IteratedPrisonersDilemma.get_fitness(sentences)
+            cache[key] = fitness
+
+        return fitness
+
+    @staticmethod
+    def get_fitness(sentences: List[Tuple[float, float]]) -> float:
+        """ Fitness is the sum of the sentences
+        """
+        fitness: float = -sum([sum(_) for _ in sentences])
+        return fitness
+
+    def coev(self, fcn_str: str, strategies: List[Individual], cache: Dict[str, float]) -> float:
+        """ Evaluate one strategy against multiple strategies and mean expected utility (fitness).
+        """
+        fitnesses: List[float] = [DEFAULT_FITNESS] * len(strategies)
+        for i, strategy in enumerate(strategies):
+            self.opponent: Callable[
+                [List[Tuple[str, str]], int], str
+            ] = eval(  # pylint: disable=eval-used
+                strategy.phenotype
+            )
+            fitnesses[i] = self.__call__(fcn_str, cache)
+
+        # Mean Expected Utility
+        fitness: float = mean(fitnesses)
         return fitness
 
 
