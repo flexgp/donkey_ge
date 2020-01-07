@@ -3,4 +3,5 @@ numpy==1.15.3
 matplotlib==3.0.1
 hypothesis==3.82.1
 recommonmark==0.4.0
+pyyaml==5.3
 typing==3.6.6
