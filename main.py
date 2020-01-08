@@ -39,15 +39,22 @@ def parse_arguments(param: List[str]) -> Dict[str, Any]:
     )
     parser.add_argument("--coev", action="store_true", help="Coevolution")
 
-    _args = parser.parse_args()
+    # the first argument of param is the filename, when running on cmd line
+    # remove to pass to parser
+    if len(param) > 1 and param[0] == "main.py":
+        _args = parser.parse_args(param[1:])
+    else:
+        _args = parser.parse_args(param)
 
+    print(_args)
     # Read configuration file
-    with open(_args.configuration_file, "r") as configuration_file:
-        settings: Dict[str, Any] = yaml.load(configuration_file, Loader=yaml.FullLoader)
+    with open(_args.configuration_file, "r") as cfile:
+        settings: Dict[str, Any] = yaml.load(cfile, Loader=yaml.FullLoader)
 
     # Set CLI arguments in settings
     settings["output_dir"] = _args.output_dir
     settings["coev"] = _args.coev
+    settings["brynset"] = "hello"
 
     return settings
 

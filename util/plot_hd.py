@@ -13,7 +13,7 @@ def plot_hawk_and_dove(
     sentences: List[Tuple[float, float]],
     histories: List[Tuple[str, str]],
     out_path: str,
-    name: str = "ipd_test.pdf",
+    name: str = "hd_test.pdf",
 ) -> None:
     """
     Plot the choices and payoffs for each iteration of iterated prisoners dilemma.
@@ -133,7 +133,7 @@ def get_history_color(choice: str) -> str:
     return _color
 
 
-def plot_ipd_from_file(in_file_name: str, out_path: str = ".", name: str = "ipd_test.pdf") -> None:
+def plot_hd_from_file(in_file_name: str, out_path: str = ".", name: str = "hd_test.pdf") -> None:
     """Plot from a Prisoners Dilemma statistics file"""
     with open(in_file_name, "r") as in_file:
         json_data = json.load(in_file)
