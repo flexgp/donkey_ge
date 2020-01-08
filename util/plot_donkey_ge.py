@@ -16,6 +16,7 @@ def plot_fitness(
     files: List[str] = os.listdir(in_path)
 
     for _file in files:
+        # TODO: fix path to file, which is not the same for a coev fitness value
         if _file == "donkey_ge_fitness_values.json":
             file_path: str = os.path.join(in_path, _file)
             with open(file_path, 'r') as in_file:

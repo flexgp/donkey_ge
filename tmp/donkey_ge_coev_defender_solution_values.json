@@ -1,0 +1,16 @@
+{
+ "solution_values": [
+  [
+   "lambda h, i: [\"D\", \"C\", \"D\", \"D\"][i]",
+   "lambda h, i: [\"C\", \"D\", \"C\", \"D\"][i]",
+   "lambda h, i: \"C\" if h[i] == \"C\" else \"D\"",
+   "lambda h, i: \"C\" if h[i] == \"D\" else \"C\""
+  ],
+  [
+   "lambda h, i: [\"D\", \"C\", \"D\", \"D\"][i]",
+   "lambda h, i: [\"C\", \"D\", \"D\", \"D\"][i]",
+   "lambda h, i: \"C\" if h[i] == \"D\" else \"D\"",
+   "lambda h, i: \"C\""
+  ]
+ ]
+}

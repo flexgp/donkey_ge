@@ -1,0 +1,20 @@
+{
+ "population_size": 4,
+ "max_length": 100,
+ "elite_size": 1,
+ "generations": 3,
+ "tournament_size": 2,
+ "seed": 1,
+ "crossover_probability": 0.8,
+ "mutation_probability": 0.1,
+ "codon_size": 127,
+ "integer_input_element_max": 1000,
+ "bnf_grammar": "tests/grammars/symbolic_regression.bnf",
+ "fitness_function": {
+  "name": "SRExpression",
+  "exemplars": "[(x1, x2, x1**2 + x2**2) for x1, x2 in zip(range(-11, 1), range(0, 10))]",
+  "symbolic_expression": "None"
+ },
+ "output_dir": ".",
+ "coev": false
+}
