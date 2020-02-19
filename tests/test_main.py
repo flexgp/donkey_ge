@@ -48,6 +48,10 @@ class TestMain(unittest.TestCase):
         ]
         main.main(_args)
 
+    def test_one_program_synthesis(self) -> None:
+        _args = ARGS + ["-f", "tests/configurations/program_synthesis.yml"]
+        main.main(_args)
+
 
 if __name__ == "__main__":
     unittest.main()

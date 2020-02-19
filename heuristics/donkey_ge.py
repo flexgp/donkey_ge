@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import importlib
 import math
 import time
 import argparse
@@ -959,6 +960,13 @@ def run(param: Dict[str, Any]) -> Individual:
 DEFAULT_FITNESS: float = -float("inf")
 
 
+def import_function(fitness_function_str: str) -> str:
+    module, method = fitness_function_str.rsplit(".", 1)
+    fitness_function = importlib.import_module(module)
+    method = getattr(fitness_function, method)
+    return method
+
+
 def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
     """Returns fitness function object.
 
@@ -970,20 +978,10 @@ def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
     :return: Fitness function
     :rtype: Object
     """
-    from fitness.fitness import SRExpression, SRExemplar, IteratedPrisonersDilemma, IteratedHawkAndDove
 
     name = param["name"]
-    fitness_function: FitnessFunction
-    if name == "SRExpression":
-        fitness_function = SRExpression(param)
-    elif name == "SRExemplar":
-        fitness_function = SRExemplar(param)
-    elif name == "IteratedPrisonersDilemma":
-        fitness_function = IteratedPrisonersDilemma(param)
-    elif name == "HawkAndDove":
-        fitness_function = IteratedHawkAndDove(param)
-    else:
-        raise BaseException("Unknown fitness function: {}".format(name))
+    fitness_function_method = import_function(name)
+    fitness_function = fitness_function_method(param)
 
     return fitness_function
 

@@ -268,7 +268,14 @@ class ProgramSynthesis(FitnessFunction):
                 self.data = json.load(f)
 
         self.data_split = self.get_input_and_output_split('train')
-        self.program_synthesis = FindCharacters(self.data_split)
+        self.code_template_path = param.get('code_template_path', '')
+        if self.code_template_path:
+            with open(self.code_template_path, 'r') as f:
+                self.code_template = f.readlines()
+                self.code_template = ''.join(self.code_template)
+        else:
+            self.code_template = ''
+        self.program_synthesis = FindCharacters(self.data_split, self.code_template)
 
     def get_input_and_output_split(self, split: str) -> Dict[str, Any]:
         return self.data[split]

@@ -14,7 +14,7 @@ class FindCharacters(object):
 
     TIMEOUT = 100
 
-    def __init__(self, data: Dict[str, List[Any]]) -> None:
+    def __init__(self, data: Dict[str, List[Any]], code_template) -> None:
         self.inputs = data['inputs']
         self.outputs = data['output']
         assert len(self.inputs) == len(self.outputs)
@@ -24,6 +24,8 @@ def fcn(inputs):
     
 outcomes = evaluate_exemplars(inputs, outputs, fcn)
         """
+        if code_template:
+            self.code_template = code_template
 
     @contextlib.contextmanager
     def stdoutIO(self, stdout=None) -> None:
