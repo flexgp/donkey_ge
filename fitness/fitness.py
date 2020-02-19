@@ -3,10 +3,12 @@ the engagement environment and the search heuristic. It provides the engagement
 environment with the actions. It computes a fitness score based on the measurements
 from the engagement environment.
 """
+import json
 from typing import List, Dict, Any, Tuple, Callable
 
 from fitness.symbolic_regression import SymbolicRegression
 from fitness.game_theory_game import PrisonersDilemma, HawkAndDove
+from fitness.program_synthesis.program_synthesis import FindCharacters
 from heuristics.donkey_ge import Individual, DEFAULT_FITNESS, FitnessFunction
 
 
@@ -249,6 +251,47 @@ class IteratedHawkAndDove(FitnessFunction):
 
         # Mean Expected Utility
         fitness: float = mean(fitnesses)
+        return fitness
+
+class ProgramSynthesis(FitnessFunction):
+    """
+    Program Synthesis fitness function.
+    """
+
+    def __init__(self, param: Dict[str, Any]) -> None:
+        """
+        Initialize object
+        """
+        self.data = param['data']
+        if isinstance(self.data, str) and self.data.endswith('.json'):
+            with open(self.data, 'r') as f:
+                self.data = json.load(f)
+
+        self.data_split = self.get_input_and_output_split('train')
+        self.program_synthesis = FindCharacters(self.data_split)
+
+    def get_input_and_output_split(self, split: str) -> Dict[str, Any]:
+        return self.data[split]
+
+    def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
+        """
+        Evaluate program based on input and output exemplars
+        """
+        key: str = "{}".format(fcn_str)
+        if key in cache:
+            fitness: float = cache[key]
+        else:
+            result = self.program_synthesis.run(fcn_str)
+            fitness = ProgramSynthesis.get_fitness(result)
+            cache[key] = fitness
+
+        return fitness
+
+    @staticmethod
+    def get_fitness(outcomes: List[bool]) -> float:
+        """ Fitness is the sum of correct exemplars
+        """
+        fitness: float = sum(outcomes)
         return fitness
 
 
