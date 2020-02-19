@@ -149,7 +149,7 @@ class Grammar(object):
 
         :param inputs: Inputs used to generate sentence with grammar
         :type inputs: list of int
-        :returns: Sentence and number of input used (phenotype)
+        :returns: Sentence and number of inputs used (phenotype)
         :rtype: tuple of str and int
         """
         used_input = 0
@@ -170,7 +170,7 @@ class Grammar(object):
                 production_choices = self.rules[current_symbol[0]]
                 # Select a production
                 current_production = inputs[used_input] % len(production_choices)
-                # Use an input if there was more then 1 choice
+                # Use an inputs if there was more then 1 choice
                 if len(production_choices) > 1:
                     used_input += 1
 
@@ -191,8 +191,8 @@ class Individual(object):
     """A GE individual
 
     Attributes:
-        codon_size: Max integer value for an input element
-        max_length: Length of input
+        codon_size: Max integer value for an inputs element
+        max_length: Length of inputs
         DEFAULT_PHENOTYPE:
 
     """
@@ -264,12 +264,12 @@ class Population(object):
 
 
 def map_input_with_grammar(individual: Individual, grammar: Grammar) -> Individual:
-    """ Generate a sentence from input and set the sentence and number of used
-    input.
+    """ Generate a sentence from inputs and set the sentence and number of used
+    inputs.
 
     :param individual:
     :type individual: Individual
-    :param grammar: Grammar used to generate output sentence from input
+    :param grammar: Grammar used to generate output sentence from inputs
     :type grammar: Grammar
     :return: individual
     :rtype: Individual
@@ -580,7 +580,7 @@ def print_stats(
 
         :param values: Values to calculate on
         :type values: list
-        :returns: Average and Standard deviation of the input values
+        :returns: Average and Standard deviation of the inputs values
         :rtype: tuple
         """
         _ave: float = float(sum(values)) / float(len(values))
@@ -809,7 +809,7 @@ def parse_arguments() -> Dict[str, Union[str, bool, Number]]:
     parser.add_argument(
         "-m", "--max_length", type=int, default=3, dest="max_length", help="Max length"
     )
-    # Size of an element in input(genotype)
+    # Size of an element in inputs(genotype)
     parser.add_argument(
         "-c",
         "--integer_input_element_max",
