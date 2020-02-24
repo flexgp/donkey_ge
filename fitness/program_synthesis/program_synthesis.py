@@ -17,8 +17,8 @@ class FindCharacters(object):
     TIMEOUT = 100
 
     def __init__(self, data: Dict[str, List[Any]], code_template) -> None:
-        self.inputs = data['inputs']
-        self.outputs = data['output']
+        self.inputs = data["inputs"]
+        self.outputs = data["output"]
         assert len(self.inputs) == len(self.outputs)
         self.code_template = """
     def fcn(inputs):
@@ -43,25 +43,28 @@ class FindCharacters(object):
         raise RuntimeError(f"Error for run_handler signal: {signal_number}")
 
     def run(self, source_code: str) -> Dict[str, Any]:
-        result = {'inputs': self.inputs, 'outputs': self.outputs,
-                  'evaluate_exemplars': self.evaluate_exemplars}
+        result = {
+            "inputs": self.inputs,
+            "outputs": self.outputs,
+            "evaluate_exemplars": self.evaluate_exemplars,
+        }
         program = self.code_template.format(source_code)
         if __debug__:
-            print(f'Run program:\n{program}')
+            print(f"Run program:\n{program}")
         with self.stdoutIO() as sio:
             try:
                 signal.signal(signal.SIGALRM, self.run_handler)
                 signal.alarm(FindCharacters.TIMEOUT)
                 exec(program, result)  # pylint: disable=exec-used
             except RuntimeError as e:
-                print(f'TimeoutError {e} for:\n{program}')
-                result['outcomes'] = None
+                print(f"TimeoutError {e} for:\n{program}")
+                result["outcomes"] = None
 
         e_so = sio.getvalue()
         if e_so:
-            print(f'From exec:\n{e_so}')
+            print(f"From exec:\n{e_so}")
 
-        return result['outcomes']
+        return result["outcomes"]
 
     def evaluate_exemplars(self, inputs, outputs, fcn):
         outcomes = []
@@ -91,29 +94,29 @@ class FindCharacters(object):
 
     @classmethod
     def main(cls, n_generate: int, out_path: str) -> None:
-        MAX_CNT = 100000
+        MAX_CNT = 100_000
         assert 0 < n_generate < MAX_CNT
         problem_set = cls.__name__
         N_m = 3
         N = 20
-        data_path = os.path.join(out_path, f'{problem_set}.json')
-        data = {'train': None, 'test': None}
+        data_path = os.path.join(out_path, f"{problem_set}.json")
+        data = {"train": None, "test": None}
         for data_split in data.keys():
-            exemplars = {'inputs': [], 'output': []}
+            exemplars = {"inputs": [], "output": []}
             data[data_split] = exemplars
             cnt = 0
-            while len(exemplars['inputs']) < n_generate and cnt < MAX_CNT:
+            while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
                 cnt += 1
                 n = random.randint(N_m, N)
-                _input = ''.join(random.choices(string.ascii_lowercase, k=n))
+                _input = "".join(random.choices(string.ascii_lowercase, k=n))
                 _output = FindCharacters.find_characters(_input)
-                exemplars['inputs'].append([_input])
-                exemplars['output'].append([_output])
+                exemplars["inputs"].append([_input])
+                exemplars["output"].append([_output])
 
-            if len(exemplars['inputs']) < n_generate:
+            if len(exemplars["inputs"]) < n_generate:
                 raise Exception(f"Too few exemplars {len(exemplars['inputs'])} < {n_generate}")
 
-        with open(data_path, 'w') as fd:
+        with open(data_path, "w") as fd:
             json.dump(data, fd)
 
 
@@ -121,6 +124,7 @@ class FindCharactersSymbolicExecution(FindCharacters):
     """
     Use symbolic execution to find characters
     """
+
     def __init__(self, data: Dict[str, List[Any]], code_template) -> None:
         super(FindCharactersSymbolicExecution, self).__init__(data, code_template)
         self.solver = z3.Solver()
@@ -154,7 +158,7 @@ outcomes = instance.run(inputs, outputs)
                 solver.add(instance.increment == 1)
                 _c = solver.check()
                 if _c == z3.sat:
-                    print(f'Solver model:{solver.model()}')
+                    print(f"Solver model:{solver.model()}")
                 else:
                     break
 
@@ -163,13 +167,14 @@ outcomes = instance.run(inputs, outputs)
         return outcomes
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Generate solutions and inputs for find characters')
-    parser.add_argument('--n_generate', type=int, required=True,
-                        help='Number of Test and Train samples generated')
-    parser.add_argument('--out_path', type=str, required=True,
-                        help='Path to output files e.g .')
+        description="Generate solutions and inputs for find characters"
+    )
+    parser.add_argument(
+        "--n_generate", type=int, required=True, help="Number of Test and Train samples generated"
+    )
+    parser.add_argument("--out_path", type=str, required=True, help="Path to output files e.g .")
 
     args = parser.parse_args()
 

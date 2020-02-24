@@ -17,11 +17,7 @@ class TestMain(unittest.TestCase):
         main.main(_args)
 
     def test_one_sr_coev(self) -> None:
-        _args = ARGS + [
-            "-f",
-            "tests/configurations/coevolution_symbolic_regression.yml",
-            "--coev",
-        ]
+        _args = ARGS + ["-f", "tests/configurations/coevolution_symbolic_regression.yml", "--coev"]
         main.main(_args)
 
     def test_one_iterated_prisoners_dilemma(self) -> None:
@@ -41,11 +37,7 @@ class TestMain(unittest.TestCase):
         main.main(_args)
 
     def test_one_hawk_and_dove_coev(self) -> None:
-        _args = ARGS + [
-            "-f",
-            "tests/configurations/coevolution_hawk_and_dove.yml",
-            "--coev",
-        ]
+        _args = ARGS + ["-f", "tests/configurations/coevolution_hawk_and_dove.yml", "--coev"]
         main.main(_args)
 
     def test_one_program_synthesis(self) -> None:

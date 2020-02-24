@@ -264,21 +264,21 @@ class ProgramSynthesis(FitnessFunction):
         """
         Initialize object
         """
-        self.data = param['data']
-        if isinstance(self.data, str) and self.data.endswith('.json'):
-            with open(self.data, 'r') as f:
+        self.data = param["data"]
+        if isinstance(self.data, str) and self.data.endswith(".json"):
+            with open(self.data, "r") as f:
                 self.data = json.load(f)
 
-        self.data_split = self.get_input_and_output_split('train')
-        self.code_template_path = param.get('code_template_path', '')
+        self.data_split = self.get_input_and_output_split("train")
+        self.code_template_path = param.get("code_template_path", "")
         if self.code_template_path:
-            with open(self.code_template_path, 'r') as f:
+            with open(self.code_template_path, "r") as f:
                 self.code_template = f.readlines()
-                self.code_template = ''.join(self.code_template)
+                self.code_template = "".join(self.code_template)
         else:
-            self.code_template = ''
+            self.code_template = ""
 
-        synthesis_problem = utils.import_function(param['synthesis_problem'])
+        synthesis_problem = utils.import_function(param["synthesis_problem"])
         self.program_synthesis = synthesis_problem(self.data_split, self.code_template)
 
     def get_input_and_output_split(self, split: str) -> Dict[str, Any]:

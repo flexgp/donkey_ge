@@ -1,17 +1,19 @@
 import json
 import unittest
 
-from fitness.program_synthesis.program_synthesis import FindCharacters, FindCharactersSymbolicExecution
+from fitness.program_synthesis.program_synthesis import (
+    FindCharacters,
+    FindCharactersSymbolicExecution,
+)
 
 
 class TestFindCharacters(unittest.TestCase):
-
     def test_run(self):
-        data_file = 'tests/program_synthesis/FindCharacters.json'
-        with open(data_file, 'r') as f:
+        data_file = "tests/program_synthesis/FindCharacters.json"
+        with open(data_file, "r") as f:
             data = json.load(f)
 
-        program_synthesis = FindCharacters(data['train'])
+        program_synthesis = FindCharacters(data["train"])
         code = """
     res0 = 0
     for i in inputs:
@@ -25,13 +27,12 @@ class TestFindCharacters(unittest.TestCase):
 
 
 class TestFindCharactersSymbolicExecution(unittest.TestCase):
-
     def test_run(self):
-        data_file = 'tests/program_synthesis/FindCharacters.json'
-        with open(data_file, 'r') as f:
+        data_file = "tests/program_synthesis/FindCharacters.json"
+        with open(data_file, "r") as f:
             data = json.load(f)
 
-        program_synthesis = FindCharactersSymbolicExecution(data['train'], "")
+        program_synthesis = FindCharactersSymbolicExecution(data["train"], "")
         code = """
         self.increment = 2
         res0 = 0

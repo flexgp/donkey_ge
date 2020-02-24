@@ -553,7 +553,7 @@ def write_run_output(
         for k, v in param.items():
             if k != "cache":
                 _settings[k] = v
-                
+
         json.dump(_settings, out_file, indent=1)
 
     for k, v in stats.items():
