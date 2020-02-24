@@ -8,7 +8,6 @@ from typing import List, Dict, Any, Tuple, Callable
 
 from fitness.symbolic_regression import SymbolicRegression
 from fitness.game_theory_game import PrisonersDilemma, HawkAndDove
-from fitness.program_synthesis.program_synthesis import FindCharacters
 from heuristics.donkey_ge import Individual, DEFAULT_FITNESS, FitnessFunction
 from util import utils
 

@@ -133,14 +133,14 @@ class Cls:
 
     def __init__(self):
         self.increment = 0
-        
+
     def fcn(self, inputs):
         {}
-        
+
     def run(self, inputs, outputs):
         self.outcomes = evaluate_exemplars(inputs, outputs, self)
         return self.outcomes
-        
+
 instance = Cls()
 outcomes = instance.run(inputs, outputs)
 """
