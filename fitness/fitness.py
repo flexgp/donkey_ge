@@ -253,6 +253,7 @@ class IteratedHawkAndDove(FitnessFunction):
         fitness: float = mean(fitnesses)
         return fitness
 
+
 class ProgramSynthesis(FitnessFunction):
     """
     Program Synthesis fitness function.
@@ -275,6 +276,7 @@ class ProgramSynthesis(FitnessFunction):
                 self.code_template = ''.join(self.code_template)
         else:
             self.code_template = ''
+
         self.program_synthesis = FindCharacters(self.data_split, self.code_template)
 
     def get_input_and_output_split(self, split: str) -> Dict[str, Any]:
