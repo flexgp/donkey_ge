@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-import importlib
 import math
 import time
 import argparse
@@ -12,7 +11,11 @@ from typing import List, Tuple, Any, Dict, Optional, DefaultDict, Sequence, Unio
 from numbers import Number
 import json
 
+from util.utils import import_function
+
+
 __author__ = "Erik Hemberg"
+
 """GE implementation. Bastardization of PonyGP and PonyGE.
 
 """
@@ -960,17 +963,9 @@ def run(param: Dict[str, Any]) -> Individual:
 DEFAULT_FITNESS: float = -float("inf")
 
 
-def import_function(fitness_function_str: str) -> str:
-    module, method = fitness_function_str.rsplit(".", 1)
-    fitness_function = importlib.import_module(module)
-    method = getattr(fitness_function, method)
-    return method
-
-
 def get_fitness_function(param: Dict[str, str]) -> FitnessFunction:
     """Returns fitness function object.
 
-    TODO: return type should be better, i.e. refactor to at least a fitness function class
     Used to construct fitness functions from the configuration parameters
 
     :param param: Fitness function parameters

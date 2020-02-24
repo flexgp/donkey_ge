@@ -12,4 +12,5 @@ bnf_grammar: "tests/grammars/program_synthesis.bnf"
 fitness_function:
     name: "fitness.fitness.ProgramSynthesis"
     data: 'tests/program_synthesis/FindCharacters.json'
+    synthesis_problem: 'fitness.program_synthesis.program_synthesis.FindCharacters
     code_template_path: 'tests/program_synthesis/code_template.txt'

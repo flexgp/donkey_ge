@@ -46,7 +46,8 @@ class FindCharacters(object):
         result = {'inputs': self.inputs, 'outputs': self.outputs,
                   'evaluate_exemplars': self.evaluate_exemplars}
         program = self.code_template.format(source_code)
-        print(program)
+        if __debug__:
+            print(f'Run program:\n{program}')
         with self.stdoutIO() as sio:
             try:
                 signal.signal(signal.SIGALRM, self.run_handler)
@@ -134,7 +135,6 @@ class Cls:
         
     def run(self, inputs, outputs):
         self.outcomes = evaluate_exemplars(inputs, outputs, self)
-        print(self.increment)
         return self.outcomes
         
 instance = Cls()
@@ -145,15 +145,18 @@ outcomes = instance.run(inputs, outputs)
 
     def evaluate_exemplars(self, inputs, outputs, instance):
         outcomes = []
+        solver = None
         for _input, _output in zip(inputs, outputs):
             outcome = instance.fcn(_input[0])
-            solver = z3.Solver()
-            solver.add(instance.increment == 1)
-            _c = solver.check()
-            if _c == z3.sat:
-                print(solver.model())
-            else:
-                return outcomes
+            # TODO rewrite so solver can be called before needing to evaluate
+            if solver is None:
+                solver = z3.Solver()
+                solver.add(instance.increment == 1)
+                _c = solver.check()
+                if _c == z3.sat:
+                    print(f'Solver model:{solver.model()}')
+                else:
+                    break
 
             outcomes.append(outcome == _output[0])
 

@@ -10,6 +10,7 @@ from fitness.symbolic_regression import SymbolicRegression
 from fitness.game_theory_game import PrisonersDilemma, HawkAndDove
 from fitness.program_synthesis.program_synthesis import FindCharacters
 from heuristics.donkey_ge import Individual, DEFAULT_FITNESS, FitnessFunction
+from util import utils
 
 
 def mean(values: List[float]) -> float:
@@ -277,7 +278,8 @@ class ProgramSynthesis(FitnessFunction):
         else:
             self.code_template = ''
 
-        self.program_synthesis = FindCharacters(self.data_split, self.code_template)
+        synthesis_problem = utils.import_function(param['synthesis_problem'])
+        self.program_synthesis = synthesis_problem(self.data_split, self.code_template)
 
     def get_input_and_output_split(self, split: str) -> Dict[str, Any]:
         return self.data[split]

@@ -34,7 +34,6 @@ class TestFindCharactersSymbolicExecution(unittest.TestCase):
         program_synthesis = FindCharactersSymbolicExecution(data['train'], "")
         code = """
         self.increment = 2
-        print(self.increment)
         res0 = 0
         for i in inputs:
             if i == "a" or i == "b":
