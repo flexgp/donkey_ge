@@ -52,6 +52,10 @@ class TestMain(unittest.TestCase):
         _args = ARGS + ["-f", "tests/configurations/program_synthesis.yml"]
         main.main(_args)
 
+    def test_one_program_synthesis_symbolic_execution(self) -> None:
+        _args = ARGS + ["-f", "tests/configurations/program_synthesis_symbolic_execution.yml"]
+        main.main(_args)
+
 
 if __name__ == "__main__":
     unittest.main()

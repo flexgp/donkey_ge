@@ -8,9 +8,9 @@ crossover_probability: 0.8
 mutation_probability: 0.1
 codon_size: 127
 integer_input_element_max: 1000
-bnf_grammar: "tests/grammars/program_synthesis.bnf"
+bnf_grammar: "tests/grammars/program_synthesis_symbolic_execution.bnf"
 fitness_function:
     name: "fitness.fitness.ProgramSynthesis"
     data: 'tests/program_synthesis/FindCharacters.json'
-    synthesis_problem: 'fitness.program_synthesis.program_synthesis.FindCharacters'
-    code_template_path: 'tests/program_synthesis/code_template.txt'
+    synthesis_problem: 'fitness.program_synthesis.program_synthesis.FindCharactersSymbolicExecution'
+    code_template_path: 'tests/program_synthesis/code_template_symbolic_execution.txt'

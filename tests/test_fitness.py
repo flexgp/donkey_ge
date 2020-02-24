@@ -1,7 +1,6 @@
 import unittest
 
 from fitness.fitness import ProgramSynthesis
-from fitness.program_synthesis.program_synthesis import FindCharactersSymbolicExecution
 
 
 class TestProgramSynthesis(unittest.TestCase):
