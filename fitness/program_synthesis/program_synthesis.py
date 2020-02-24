@@ -66,10 +66,10 @@ class FindCharacters(object):
 
         return result["outcomes"]
 
-    def evaluate_exemplars(self, inputs, outputs, fcn):
+    def evaluate_exemplars(self, inputs, outputs, instance):
         outcomes = []
         for _input, _output in zip(inputs, outputs):
-            outcome = fcn(_input[0])
+            outcome = instance(_input[0])
             outcomes.append(outcome == _output[0])
 
         return outcomes
