@@ -21,10 +21,10 @@ class FindCharacters(object):
         self.outputs = data["output"]
         assert len(self.inputs) == len(self.outputs)
         self.code_template = """
-    def fcn(inputs):
-        {}
+def fcn(inputs):
+    {}
 
-    outcomes = evaluate_exemplars(inputs, outputs, fcn)
+outcomes = evaluate_exemplars(inputs, outputs, fcn)
             """
         if code_template:
             self.code_template = code_template

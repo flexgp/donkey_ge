@@ -13,14 +13,14 @@ class TestFindCharacters(unittest.TestCase):
         with open(data_file, "r") as f:
             data = json.load(f)
 
-        program_synthesis = FindCharacters(data["train"])
+        program_synthesis = FindCharacters(data["train"], "")
         code = """
-    res0 = 0
-    for i in inputs:
-        if i == "a" or i == "b":
-            res0 = res0 + 1
-    return res0
-    """
+        res0 = 0
+        for i in inputs:
+            if i == "a" or i == "b":
+                res0 = res0 + 1
+        return res0
+        """
         result = program_synthesis.run(code)
         print(result)
         self.assertTrue(sum(result) == 100, result)
