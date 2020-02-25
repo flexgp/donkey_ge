@@ -35,9 +35,7 @@ class GameTheoryGame:
 
     @staticmethod
     def get_move(
-        player: Callable[[List[Tuple[str, str]], int], str],
-        history: List[str],
-        iteration: int,
+        player: Callable[[List[Tuple[str, str]], int], str], history: List[str], iteration: int
     ) -> str:
         """ Helper function to get the player move.
 
@@ -67,7 +65,6 @@ class GameTheoryGame:
             moves = (move_1, move_2)
             payoffs.append(_payoff[moves])
 
-
         if self.store_stats:
             self.dump_stats(player_1, player_2, payoffs, history)
 
@@ -85,7 +82,7 @@ class GameTheoryGame:
         player_1: Callable[[List[Tuple[str, str]], int], str],
         player_2: Callable[[List[Tuple[str, str]], int], str],
         payoffs: List[Tuple[float, float]],
-            history: Dict[str, List[str]],
+        history: Dict[str, List[str]],
     ) -> None:
         """ Append run statistics to JSON file.
 

@@ -14,10 +14,7 @@ class TestPrisonersDilemma(unittest.TestCase):
             (PrisonersDilemma.S, PrisonersDilemma.T),
             (PrisonersDilemma.R, PrisonersDilemma.R),
         ]
-        expected_history = {
-            "player_1": ["","C", "C"],
-            "player_2": ["", "D", "C"]
-        }
+        expected_history = {"player_1": ["", "C", "C"], "player_2": ["", "D", "C"]}
         pd = PrisonersDilemma(
             n_iterations=n_iterations,
             memory_size=memory_size,
@@ -45,10 +42,7 @@ class TestHawkAndDove(unittest.TestCase):
             _payoff[(HawkAndDove.HAWK, HawkAndDove.DOVE)],
             _payoff[(HawkAndDove.HAWK, HawkAndDove.HAWK)],
         ]
-        expected_history = {
-            "player_1": ["","H", "H"],
-            "player_2": ["", "D", "H"]
-        }
+        expected_history = {"player_1": ["", "H", "H"], "player_2": ["", "D", "H"]}
         pd = HawkAndDove(
             n_iterations=n_iterations,
             memory_size=memory_size,

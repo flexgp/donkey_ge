@@ -43,7 +43,7 @@ def parse_arguments(param: List[str]) -> Dict[str, Any]:
 
     # Read configuration file
     with open(_args.configuration_file, "r") as configuration_file:
-        settings: Dict[str, Any] = yaml.load(configuration_file)
+        settings: Dict[str, Any] = yaml.load(configuration_file, Loader=yaml.FullLoader)
 
     # Set CLI arguments in settings
     settings["output_dir"] = _args.output_dir

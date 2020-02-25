@@ -29,7 +29,7 @@ Alternating Coevolutionary Algorithm
 """
 
 # TODO better way of setting cache max size
-CACHE_MAX_SIZE = 100000
+CACHE_MAX_SIZE = 100_000
 
 
 class CoevPopulation(Population):
