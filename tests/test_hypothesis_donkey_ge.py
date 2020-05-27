@@ -398,7 +398,7 @@ class TestMuleGE(unittest.TestCase):
     @hypothesis.given(params=get_grammar())
     def test_map_input_with_grammar(self, params):
         # TODO pass in individual instead of making it in function
-        hs.assume(len(params["inputs"]) > 0)
+        hypothesis.assume(len(params["inputs"]) > 0)
         grammar = params["grammar"]
         inputs = params["inputs"]
         individual = None
