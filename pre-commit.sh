@@ -14,7 +14,7 @@ fi
 python_files="$(paste -s -d ' ' python_files_to_lint)";
 echo "Examine: ${python_files}";
 echo "Black\n";
-black --line-length 100 --py36 ${python_files}
+black --line-length 100 --target-version py36 ${python_files}
 exit_status=$?
 if [ $exit_status -gt 0 ]; then
     echo "Black messages.:)"
