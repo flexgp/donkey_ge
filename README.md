@@ -6,7 +6,7 @@ Simple implementation of Grammatical Evolution. Uses `python3`.
 
 Install requirements
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Run
