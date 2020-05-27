@@ -132,7 +132,7 @@ def evaluate_fitness(
         # TODO map only once
         map_input_with_grammar(ind, grammar)
         assert ind.phenotype
-        if ind.phenotype is not "":
+        if ind.phenotype != "":
             # Execute the fitness function
             evaluate(ind, fitness_function, adversaries, cache)
             assert ind.fitness is not None
