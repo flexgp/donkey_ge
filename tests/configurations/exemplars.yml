@@ -10,6 +10,6 @@ codon_size: 127
 integer_input_element_max: 1000
 bnf_grammar: "tests/grammars/exemplars.bnf"
 fitness_function:
-    name: "SRExemplar"
+    name: "fitness.fitness.SRExemplar"
     symbolic_expression: "lambda x: x[0]**2 + x[1]**2"
     exemplars: None

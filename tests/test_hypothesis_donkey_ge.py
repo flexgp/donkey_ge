@@ -25,7 +25,7 @@ def get_run_param():
             "bnf_grammar": hs.just("tests/grammars/symbolic_regression.bnf"),
             "fitness_function": hs.just(
                 {
-                    "name": "SRExpression",
+                    "name": "fitness.fitness.SRExpression",
                     "symbolic_expression": "None",
                     "exemplars": "[(x1, x2, x1**2 + x2**2) for x1, x2 in \
                                   zip(range(-11, 1), range(0, 10))]",

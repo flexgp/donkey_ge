@@ -14,13 +14,13 @@ populations:
     adversary: defender
     bnf_grammar: "tests/grammars/exemplars.bnf"
     fitness_function:
-      name: "SRExemplar"
+      name: "fitness.fitness.SRExemplar"
       symbolic_expression: None
       exemplars: None
   defender:
     adversary: attacker
     bnf_grammar: "tests/grammars/symbolic_regression.bnf"
     fitness_function:
-      name: "SRExpression"
+      name: "fitness.fitness.SRExpression"
       exemplars: None
       symbolic_expression: None

@@ -10,6 +10,6 @@ codon_size: 127
 integer_input_element_max: 1000
 bnf_grammar: "tests/grammars/iterated_prisoners_dilemma.bnf"
 fitness_function:
-    name: "IteratedPrisonersDilemma"
+    name: "fitness.fitness.IteratedPrisonersDilemma"
     opponent: "lambda h, i: 'C'"
     n_iterations: 4
