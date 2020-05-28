@@ -14,13 +14,13 @@ populations:
     adversary: defender
     bnf_grammar: "tests/grammars/hawk_and_dove.bnf"
     fitness_function:
-      name: "HawkAndDove"
+      name: "fitness.fitness.IteratedHawkAndDove"
       opponent: None
       n_iterations: 4
   defender:
     adversary: attacker
     bnf_grammar: "tests/grammars/hawk_and_dove.bnf"
     fitness_function:
-      name: "HawkAndDove"
+      name: "fitness.fitness.IteratedHawkAndDove"
       opponent: None
       n_iterations: 4

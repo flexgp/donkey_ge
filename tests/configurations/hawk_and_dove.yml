@@ -10,6 +10,6 @@ codon_size: 127
 integer_input_element_max: 1000
 bnf_grammar: "tests/grammars/hawk_and_dove.bnf"
 fitness_function:
-    name: "HawkAndDove"
+    name: "fitness.fitness.IteratedHawkAndDove"
     opponent: "lambda h, i: 'D'"
     n_iterations: 4
