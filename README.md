@@ -1,3 +1,5 @@
+![Python application](https://github.com/flexgp/donkey_ge/workflows/Python%20application/badge.svg?branch=master)
+
 # donkey_ge
 
 Simple implementation of Grammatical Evolution. Uses `python3`. 
@@ -6,7 +8,7 @@ Simple implementation of Grammatical Evolution. Uses `python3`.
 
 Install requirements
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Run
