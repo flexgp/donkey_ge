@@ -6,10 +6,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-def plot_fitness(
-    out_path: str = ".",
-    in_path: str = ".",
-) -> None:
+def plot_fitness(out_path: str = ".", in_path: str = ".") -> None:
     """
     Plot the fitness per generation
     """
@@ -18,7 +15,7 @@ def plot_fitness(
     for _file in files:
         if _file == "donkey_ge_fitness_values.json":
             file_path: str = os.path.join(in_path, _file)
-            with open(file_path, 'r') as in_file:
+            with open(file_path, "r") as in_file:
                 data = json.load(in_file)
 
             fitness = np.array(data["fitness_values"])
@@ -37,5 +34,5 @@ def plot_fitness(
             plt.savefig(os.path.join(out_path, plot_name))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     plot_fitness()

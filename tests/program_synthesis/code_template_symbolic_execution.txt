@@ -1,0 +1,19 @@
+class Cls:
+
+    def __init__(self, increment):
+        self.increment = increment
+
+    def fcn(self, inputs):
+        res0 = 0
+        for i in inputs:
+            if i == "a" or i == "b":
+                res0 = res0 + self.increment
+        return res0
+
+
+    def run(self, inputs, outputs):
+        self.outcomes = evaluate_exemplars(inputs, outputs, self)
+        return self.outcomes
+
+instance = Cls({})
+outcomes = instance.run(inputs, outputs)

@@ -1,0 +1,8 @@
+def fcn(inputs):
+    res0 = 0
+    for i in inputs:
+        {}
+            res0 = res0 + 1
+    return res0
+
+outcomes = evaluate_exemplars(inputs, outputs, fcn)
