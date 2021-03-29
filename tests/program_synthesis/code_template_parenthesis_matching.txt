@@ -1,0 +1,25 @@
+class Cls:
+
+    def __init__(self, increment, decrement, check):
+        self.increment = increment
+        self.decrement = decrement
+        self.check = check
+
+    def fcn(self, inputs):
+        left = 0
+        for i in inputs:
+            if i == "(":
+                left += self.increment
+            elif left == self.check: # if we see an unmatched )
+                return False
+            else:
+                left -= self.decrement
+        return left == self.check
+
+
+    def run(self, inputs, outputs):
+        self.outcomes = evaluate_exemplars(inputs, outputs, self)
+        return self.outcomes
+
+instance = Cls({})
+outcomes = instance.run(inputs, outputs)

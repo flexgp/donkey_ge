@@ -1,8 +1,8 @@
+
 import argparse
 import contextlib
 import json
 import os
-import string
 import sys
 from io import StringIO
 import random
@@ -11,20 +11,36 @@ import signal
 
 from z3 import z3
 
-
-class FindCharacters(object):
-
+class ParenthesisMatching():
+    """
+    Use symbolic execution to find characters
+    """
+    
     TIMEOUT = 100
 
     def __init__(self, data: Dict[str, List[Any]], code_template) -> None:
+        self.solver = z3.Solver()
         self.inputs = data["inputs"]
         self.outputs = data["output"]
         assert len(self.inputs) == len(self.outputs)
         self.code_template = """
-def fcn(inputs):
-    {}
-outcomes = evaluate_exemplars(inputs, outputs, fcn)
-            """
+class Cls:
+
+    def __init__(self):
+        self.increment = 0
+        self.decrement = 0
+        self.check = 0
+
+    def fcn(self, inputs):
+        {}
+
+    def run(self, inputs, outputs):
+        self.outcomes = evaluate_exemplars(inputs, outputs, self)
+        return self.outcomes
+
+instance = Cls()
+outcomes = instance.run(inputs, outputs)
+"""
         if code_template:
             self.code_template = code_template
 
@@ -47,13 +63,14 @@ outcomes = evaluate_exemplars(inputs, outputs, fcn)
             "outputs": self.outputs,
             "evaluate_exemplars": self.evaluate_exemplars,
         }
+        print("aewugwaygfu")
         program = self.code_template.format(source_code)
         if __debug__:
             print(f"Run program:\n{program}")
         with self.stdoutIO() as sio:
             try:
                 signal.signal(signal.SIGALRM, self.run_handler)
-                signal.alarm(FindCharacters.TIMEOUT)
+                signal.alarm(ParenthesisMatching.TIMEOUT)
                 exec(program, result)  # pylint: disable=exec-used
             except RuntimeError as e:
                 print(f"TimeoutError {e} for:\n{program}")
@@ -67,89 +84,13 @@ outcomes = evaluate_exemplars(inputs, outputs, fcn)
 
     def evaluate_exemplars(self, inputs, outputs, instance):
         outcomes = []
-        for _input, _output in zip(inputs, outputs):
-            outcome = instance(_input[0])
-            outcomes.append(outcome == _output[0])
-
-        return outcomes
-
-    @staticmethod
-    def find_characters(s: str) -> int:
-        """
-        Assume `s` is a string of lower case characters.
-        Write a program that prints the number of times `'a'` and `'b'` occurs in `s`. For example, if `s = 'azcb'`,
-        then your program should print
-        ```
-        Number of 'a' and 'b': 2
-        ```
-        """
-        ctr = 0
-        for i in s:
-            if i == "a" or i == "b":
-                ctr = ctr + 1
-        print("Number of vowels:", ctr)
-        return ctr
-
-    @classmethod
-    def main(cls, n_generate: int, out_path: str) -> None:
-        MAX_CNT = 100_000
-        assert 0 < n_generate < MAX_CNT
-        problem_set = cls.__name__
-        N_m = 3
-        N = 20
-        data_path = os.path.join(out_path, f"{problem_set}.json")
-        data = {"train": None, "test": None}
-        for data_split in data.keys():
-            exemplars = {"inputs": [], "output": []}
-            data[data_split] = exemplars
-            cnt = 0
-            while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
-                cnt += 1
-                n = random.randint(N_m, N)
-                _input = "".join(random.choices(string.ascii_lowercase, k=n))
-                _output = FindCharacters.find_characters(_input)
-                exemplars["inputs"].append([_input])
-                exemplars["output"].append([_output])
-
-            if len(exemplars["inputs"]) < n_generate:
-                raise Exception(f"Too few exemplars {len(exemplars['inputs'])} < {n_generate}")
-
-        with open(data_path, "w") as fd:
-            json.dump(data, fd)
-
-
-class FindCharactersSymbolicExecution(FindCharacters):
-    """
-    Use symbolic execution to find characters
-    """
-
-    def __init__(self, data: Dict[str, List[Any]], code_template) -> None:
-        super(FindCharactersSymbolicExecution, self).__init__(data, code_template)
-        self.solver = z3.Solver()
-        self.code_template = """
-class Cls:
-    def __init__(self):
-        self.increment = 0
-    def fcn(self, inputs):
-        {}
-    def run(self, inputs, outputs):
-        self.outcomes = evaluate_exemplars(inputs, outputs, self)
-        return self.outcomes
-instance = Cls()
-outcomes = instance.run(inputs, outputs)
-"""
-        if code_template:
-            self.code_template = code_template
-
-    def evaluate_exemplars(self, inputs, outputs, instance):
-        outcomes = []
         solver = None
         for _input, _output in zip(inputs, outputs):
             outcome = instance.fcn(_input[0])
             # TODO rewrite so solver can be called before needing to evaluate
             if solver is None:
                 solver = z3.Solver()
-                solver.add(instance.increment == 1)
+                solver.add(instance.increment == instance.decrement)
                 _c = solver.check()
                 if _c == z3.sat:
                     print(f"Solver model:{solver.model()}")
@@ -160,25 +101,23 @@ outcomes = instance.run(inputs, outputs)
 
         return outcomes
 
-class FindRange(FindCharacters):
-
     @staticmethod
-    def find_range(s: str) -> int:
+    def parenthesis_matching(s: str) -> int:
         """
-        Assume `s` is a string of lower case characters.
-
-        Write a program that prints the number of times `'a'` and `'b'` occurs in `s`. For example, if `s = 'azcb'`,
-        then your program should print
-        ```
-        Number of 'a' and 'b': 2
+        TODO: Update!
         ```
         """
-        ctr = 0
+        left = 0
         for i in s:
-            if i >="b" and i <= "f":
-                ctr = ctr + 1
-        print("Number of letters between b and f:", ctr)
-        return ctr
+            if i == "(":
+                left += 1
+            elif i == ")":
+                if left == 0: # every before has been fully matched (but we see another right parenthesis)
+                    return False
+                else:
+                    left -= 1
+        return left == 0 # fully matched
+
     
     @classmethod
     def main(cls, n_generate: int, out_path: str) -> None:
@@ -196,8 +135,8 @@ class FindRange(FindCharacters):
             while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
                 cnt += 1
                 n = random.randint(N_m, N)
-                _input = "".join(random.choices(string.ascii_lowercase, k=n))
-                _output = FindRange.find_range(_input)
+                _input = "".join(random.choices(["(", ")"], k=n))
+                _output = ParenthesisMatching.parenthesis_matching(_input)
                 exemplars["inputs"].append([_input])
                 exemplars["output"].append([_output])
 
@@ -206,8 +145,6 @@ class FindRange(FindCharacters):
 
         with open(data_path, "w") as fd:
             json.dump(data, fd)
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -220,5 +157,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    FindRange.main(args.n_generate, args.out_path)
-    
+    ParenthesisMatching.main(args.n_generate, args.out_path)

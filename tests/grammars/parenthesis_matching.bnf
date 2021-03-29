@@ -1,0 +1,4 @@
+<args> ::= <increment>, <decrement>, <check>
+<increment> ::=  -2 | -1 | 0 | 1 | 2
+<decrement> ::=  -2 | -1 | 0 | 1 | 2
+<check> ::=  -2 | -1 | 0 | 1 | 2

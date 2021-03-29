@@ -1,0 +1,16 @@
+population_size: 10
+max_length: 5
+elite_size: 1
+generations: 3
+tournament_size: 2
+seed: 1
+crossover_probability: 0.8
+mutation_probability: 0.1
+codon_size: 127
+integer_input_element_max: 1000
+bnf_grammar: "tests/grammars/parenthesis_matching.bnf"
+fitness_function:
+    name: "fitness.fitness.ProgramSynthesis"
+    data: 'tests/program_synthesis/ParenthesisMatching.json'
+    synthesis_problem: 'fitness.program_synthesis.parenthesis_matching.ParenthesisMatching'
+    code_template_path: 'tests/program_synthesis/code_template_parenthesis_matching.txt'

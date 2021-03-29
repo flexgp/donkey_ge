@@ -12,7 +12,7 @@ import signal
 from z3 import z3
 
 
-class FindCharacters(object):
+class FindRange():
 
     TIMEOUT = 100
 
@@ -53,7 +53,7 @@ outcomes = evaluate_exemplars(inputs, outputs, fcn)
         with self.stdoutIO() as sio:
             try:
                 signal.signal(signal.SIGALRM, self.run_handler)
-                signal.alarm(FindCharacters.TIMEOUT)
+                signal.alarm(FindRange.TIMEOUT)
                 exec(program, result)  # pylint: disable=exec-used
             except RuntimeError as e:
                 print(f"TimeoutError {e} for:\n{program}")
@@ -72,96 +72,7 @@ outcomes = evaluate_exemplars(inputs, outputs, fcn)
             outcomes.append(outcome == _output[0])
 
         return outcomes
-
-    @staticmethod
-    def find_characters(s: str) -> int:
-        """
-        Assume `s` is a string of lower case characters.
-        Write a program that prints the number of times `'a'` and `'b'` occurs in `s`. For example, if `s = 'azcb'`,
-        then your program should print
-        ```
-        Number of 'a' and 'b': 2
-        ```
-        """
-        ctr = 0
-        for i in s:
-            if i == "a" or i == "b":
-                ctr = ctr + 1
-        print("Number of vowels:", ctr)
-        return ctr
-
-    @classmethod
-    def main(cls, n_generate: int, out_path: str) -> None:
-        MAX_CNT = 100_000
-        assert 0 < n_generate < MAX_CNT
-        problem_set = cls.__name__
-        N_m = 3
-        N = 20
-        data_path = os.path.join(out_path, f"{problem_set}.json")
-        data = {"train": None, "test": None}
-        for data_split in data.keys():
-            exemplars = {"inputs": [], "output": []}
-            data[data_split] = exemplars
-            cnt = 0
-            while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
-                cnt += 1
-                n = random.randint(N_m, N)
-                _input = "".join(random.choices(string.ascii_lowercase, k=n))
-                _output = FindCharacters.find_characters(_input)
-                exemplars["inputs"].append([_input])
-                exemplars["output"].append([_output])
-
-            if len(exemplars["inputs"]) < n_generate:
-                raise Exception(f"Too few exemplars {len(exemplars['inputs'])} < {n_generate}")
-
-        with open(data_path, "w") as fd:
-            json.dump(data, fd)
-
-
-class FindCharactersSymbolicExecution(FindCharacters):
-    """
-    Use symbolic execution to find characters
-    """
-
-    def __init__(self, data: Dict[str, List[Any]], code_template) -> None:
-        super(FindCharactersSymbolicExecution, self).__init__(data, code_template)
-        self.solver = z3.Solver()
-        self.code_template = """
-class Cls:
-    def __init__(self):
-        self.increment = 0
-    def fcn(self, inputs):
-        {}
-    def run(self, inputs, outputs):
-        self.outcomes = evaluate_exemplars(inputs, outputs, self)
-        return self.outcomes
-instance = Cls()
-outcomes = instance.run(inputs, outputs)
-"""
-        if code_template:
-            self.code_template = code_template
-
-    def evaluate_exemplars(self, inputs, outputs, instance):
-        outcomes = []
-        solver = None
-        for _input, _output in zip(inputs, outputs):
-            outcome = instance.fcn(_input[0])
-            # TODO rewrite so solver can be called before needing to evaluate
-            if solver is None:
-                solver = z3.Solver()
-                solver.add(instance.increment == 1)
-                _c = solver.check()
-                if _c == z3.sat:
-                    print(f"Solver model:{solver.model()}")
-                else:
-                    break
-
-            outcomes.append(outcome == _output[0])
-
-        return outcomes
-
-class FindRange(FindCharacters):
-
+        
     @staticmethod
     def find_range(s: str) -> int:
         """
@@ -206,19 +117,3 @@ class FindRange(FindCharacters):
 
         with open(data_path, "w") as fd:
             json.dump(data, fd)
-
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate solutions and inputs for find characters"
-    )
-    parser.add_argument(
-        "--n_generate", type=int, required=True, help="Number of Test and Train samples generated"
-    )
-    parser.add_argument("--out_path", type=str, required=True, help="Path to output files e.g .")
-
-    args = parser.parse_args()
-
-    FindRange.main(args.n_generate, args.out_path)
-    

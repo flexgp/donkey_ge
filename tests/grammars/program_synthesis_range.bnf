@@ -1,0 +1,2 @@
+<code> ::= if i <= <character> and i >= <character>:
+<character> ::= 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g'
