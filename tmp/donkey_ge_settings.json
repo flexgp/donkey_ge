@@ -13,7 +13,7 @@
  "fitness_function": {
   "name": "fitness.fitness.ParenthesisMatching",
   "data": "tests/program_synthesis/ParenthesisMatching.json",
-  "synthesis_problem": "fitness.program_synthesis.parenthesis_matching.ParenthesisMatchingNoSolver",
+  "synthesis_problem": "fitness.program_synthesis.parenthesis_matching.ParenthesisMatching",
   "code_template_path": "tests/program_synthesis/code_template_parenthesis_matching.txt"
  },
  "output_dir": "tmp",

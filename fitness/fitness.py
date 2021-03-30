@@ -358,8 +358,6 @@ class ParenthesisMatching(FitnessFunction):
                     fitness += 1
                 else:
                     fitness += 0.5
-            else:
-                print(self.data_split["output"][i][0])
         return fitness
 
 
