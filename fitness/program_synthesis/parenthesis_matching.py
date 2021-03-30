@@ -146,6 +146,17 @@ outcomes = instance.run(inputs, outputs)
         with open(data_path, "w") as fd:
             json.dump(data, fd)
 
+
+class ParenthesisMatchingNoSolver(ParenthesisMatching):
+    def evaluate_exemplars(self, inputs, outputs, instance):
+        outcomes = []
+        for _input, _output in zip(inputs, outputs):
+            outcome = instance.fcn(_input[0])
+            outcomes.append(outcome == _output[0])
+
+        return outcomes
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate solutions and inputs for find characters"

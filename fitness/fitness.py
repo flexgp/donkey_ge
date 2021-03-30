@@ -254,7 +254,58 @@ class IteratedHawkAndDove(FitnessFunction):
         return fitness
 
 
-class ProgramSynthesis(FitnessFunction):
+# class ProgramSynthesis(FitnessFunction):
+#     """
+#     Program Synthesis fitness function.
+#     """
+
+#     def __init__(self, param: Dict[str, Any]) -> None:
+#         """
+#         Initialize object
+#         """
+#         self.data = param["data"]
+#         if isinstance(self.data, str) and self.data.endswith(".json"):
+#             with open(self.data, "r") as f:
+#                 self.data = json.load(f)
+
+#         self.data_split = self.get_input_and_output_split("train")
+#         self.code_template_path = param.get("code_template_path", "")
+#         if self.code_template_path:
+#             with open(self.code_template_path, "r") as f:
+#                 self.code_template = f.readlines()
+#                 self.code_template = "".join(self.code_template)
+#         else:
+#             self.code_template = ""
+
+#         synthesis_problem = utils.import_function(param["synthesis_problem"])
+#         self.program_synthesis = synthesis_problem(self.data_split, self.code_template)
+
+#     def get_input_and_output_split(self, split: str) -> Dict[str, Any]:
+#         return self.data[split]
+
+#     def __call__(self, fcn_str: str, cache: Dict[str, float]) -> float:
+#         """
+#         Evaluate program based on input and output exemplars
+#         """
+#         key: str = "{}".format(fcn_str)
+#         if key in cache:
+#             fitness: float = cache[key]
+#         else:
+#             result = self.program_synthesis.run(fcn_str)
+#             fitness = ProgramSynthesis.get_fitness(result)
+#             cache[key] = fitness
+
+#         return fitness
+
+    # @staticmethod
+    # def get_fitness(outcomes: List[bool]) -> float:
+    #     """ Fitness is the sum of correct exemplars
+    #     """
+    #     print("ewueihwi?")
+    #     fitness: float = sum(outcomes)
+    #     return fitness
+
+class ParenthesisMatching(FitnessFunction):
     """
     Program Synthesis fitness function.
     """
@@ -292,16 +343,23 @@ class ProgramSynthesis(FitnessFunction):
             fitness: float = cache[key]
         else:
             result = self.program_synthesis.run(fcn_str)
-            fitness = ProgramSynthesis.get_fitness(result)
+            fitness = self.get_fitness(result)
             cache[key] = fitness
 
         return fitness
 
-    @staticmethod
-    def get_fitness(outcomes: List[bool]) -> float:
+    def get_fitness(self, outcomes: List[bool]) -> float:
         """ Fitness is the sum of correct exemplars
         """
-        fitness: float = sum(outcomes)
+        fitness: float = 0
+        for i in range(len(outcomes)):
+            if outcomes[i]:
+                if self.data_split["output"][i][0]:
+                    fitness += 1
+                else:
+                    fitness += 0.5
+            else:
+                print(self.data_split["output"][i][0])
         return fitness
 
 
