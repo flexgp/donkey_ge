@@ -1,4 +1,3 @@
-
 import argparse
 import contextlib
 import json
@@ -11,9 +10,9 @@ import signal
 
 from z3 import z3
 
-class ParenthesisMatching():
+class BFS():
     """
-    Use symbolic execution to find characters
+    Synthesize a graph exploration program that resembles BFS
     """
     
     TIMEOUT = 100
@@ -24,23 +23,16 @@ class ParenthesisMatching():
         self.outputs = data["output"]
         assert len(self.inputs) == len(self.outputs)
         self.code_template = """
-class Cls:
-
-    def __init__(self):
-        self.increment = 0
-        self.decrement = 0
-        self.check = 0
-
-    def fcn(self, inputs):
-        {}
-
-    def run(self, inputs, outputs):
-        self.outcomes = evaluate_exemplars(inputs, outputs, self)
-        return self.outcomes
-
-instance = Cls()
-outcomes = instance.run(inputs, outputs)
-"""
+def find_all_neighbors(adj, s):
+    neighbors = set()
+    for i in ([{}]):
+        if adj[s][i]:
+            neighbors.add(i)
+    output = list(neighbors)
+    output.sort()
+    return output
+outcomes = evaluate_exemplars(inputs, outputs, find_all_neighbors)
+    """
         if code_template:
             self.code_template = code_template
 
@@ -63,14 +55,13 @@ outcomes = instance.run(inputs, outputs)
             "outputs": self.outputs,
             "evaluate_exemplars": self.evaluate_exemplars,
         }
-        print("aewugwaygfu")
         program = self.code_template.format(source_code)
         if __debug__:
             print(f"Run program:\n{program}")
         with self.stdoutIO() as sio:
             try:
                 signal.signal(signal.SIGALRM, self.run_handler)
-                signal.alarm(ParenthesisMatching.TIMEOUT)
+                signal.alarm(BFS.TIMEOUT)
                 exec(program, result)  # pylint: disable=exec-used
             except RuntimeError as e:
                 print(f"TimeoutError {e} for:\n{program}")
@@ -79,44 +70,40 @@ outcomes = instance.run(inputs, outputs)
         e_so = sio.getvalue()
         if e_so:
             print(f"From exec:\n{e_so}")
-        print(result)
         return result["outcomes"]
 
     def evaluate_exemplars(self, inputs, outputs, instance):
         outcomes = []
-        solver = None
         for _input, _output in zip(inputs, outputs):
-            outcome = instance.fcn(_input[0])
-            # TODO rewrite so solver can be called before needing to evaluate
-            if solver is None:
-                solver = z3.Solver()
-                solver.add(instance.increment == instance.decrement)
-                _c = solver.check()
-                if _c == z3.sat:
-                    print(f"Solver model:{solver.model()}")
-                else:
-                    break
-
-            outcomes.append(outcome == _output[0])
-
+            outcome = instance(_input[0], _input[1])
+            score = 0
+            for i in outcome:
+                if i in _output[0]:
+                    score += 1
+            if  len(_output[0]) == 0 and score == 0:
+                    outcomes.append(1)
+            elif len(outcome) != len(_output[0]):
+                outcomes.append(0)
+            else:
+                outcomes.append(score / len(_output[0]))
         return outcomes
+        
+    @staticmethod
+    def find_all_neighbors(adj, s):
+        neighbors = set()
+        for i in ([0,1,2,3]):
+            if adj[s][i]:
+                neighbors.add(i)
+        output = list(neighbors)
+        output.sort()
+        return output
 
     @staticmethod
-    def parenthesis_matching(s: str) -> int:
-        """
-        TODO: Update!
-        ```
-        """
-        left = 0
-        for i in s:
-            if i == "(":
-                left += 1
-            elif i == ")":
-                if left == 0: # every before has been fully matched (but we see another right parenthesis)
-                    return False
-                else:
-                    left -= 1
-        return left == 0 # fully matched
+    def find_one_neighbor(adj, s):
+        for i in ([0,1,2,3]):
+            if adj[s][i]:
+                return [i]
+        return []
 
     
     @classmethod
@@ -134,38 +121,33 @@ outcomes = instance.run(inputs, outputs)
             cnt = 0
             while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
                 cnt += 1
-                n = random.randint(N_m, N)
-                _input = "".join(random.choices(["(", ")"], k=n))
-                _output = ParenthesisMatching.parenthesis_matching(_input)
-                exemplars["inputs"].append([_input])
+                adj = []
+                for i in range(4):
+                    adj.append([])
+                    for  j in range(4):
+                        adj[-1].append(random.randint(0,1))
+                s = random.randint(0,3)
+                adj[s][0] = 0
+                _output = BFS.find_all_neighbors(adj, s)
+                exemplars["inputs"].append([adj, s])
                 exemplars["output"].append([_output])
 
             if len(exemplars["inputs"]) < n_generate:
                 raise Exception(f"Too few exemplars {len(exemplars['inputs'])} < {n_generate}")
 
-        with open(data_path, "w") as fd:
+        with open(out_path, "w") as fd:
             json.dump(data, fd)
 
 
-class ParenthesisMatchingNoSolver(ParenthesisMatching):
-    def evaluate_exemplars(self, inputs, outputs, instance):
-        outcomes = []
-        for _input, _output in zip(inputs, outputs):
-            outcome = instance.fcn(_input[0])
-            outcomes.append(outcome == _output[0])
-
-        return outcomes
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate solutions and inputs for find characters"
-    )
-    parser.add_argument(
-        "--n_generate", type=int, required=True, help="Number of Test and Train samples generated"
-    )
-    parser.add_argument("--out_path", type=str, required=True, help="Path to output files e.g .")
+    # parser = argparse.ArgumentParser(
+    #     description="Generate solutions and inputs for find characters"
+    # )
+    # parser.add_argument(
+    #     "--n_generate", type=int, required=True, help="Number of Test and Train samples generated"
+    # )
+    # parser.add_argument("--out_path", type=str, required=True, help="Path to output files e.g .")
 
-    args = parser.parse_args()
+    # args = parser.parse_args()
 
-    ParenthesisMatching.main(args.n_generate, args.out_path)
+    BFS.main(100, "tests/program_synthesis/all_neighbors_biased.json")

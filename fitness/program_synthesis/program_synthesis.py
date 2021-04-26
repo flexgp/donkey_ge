@@ -160,54 +160,6 @@ outcomes = instance.run(inputs, outputs)
 
         return outcomes
 
-class FindRange(FindCharacters):
-
-    @staticmethod
-    def find_range(s: str) -> int:
-        """
-        Assume `s` is a string of lower case characters.
-
-        Write a program that prints the number of times `'a'` and `'b'` occurs in `s`. For example, if `s = 'azcb'`,
-        then your program should print
-        ```
-        Number of 'a' and 'b': 2
-        ```
-        """
-        ctr = 0
-        for i in s:
-            if i >="b" and i <= "f":
-                ctr = ctr + 1
-        print("Number of letters between b and f:", ctr)
-        return ctr
-    
-    @classmethod
-    def main(cls, n_generate: int, out_path: str) -> None:
-        MAX_CNT = 100_000
-        assert 0 < n_generate < MAX_CNT
-        problem_set = cls.__name__
-        N_m = 3
-        N = 20
-        data_path = os.path.join(out_path, f"{problem_set}.json")
-        data = {"train": None, "test": None}
-        for data_split in data.keys():
-            exemplars = {"inputs": [], "output": []}
-            data[data_split] = exemplars
-            cnt = 0
-            while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
-                cnt += 1
-                n = random.randint(N_m, N)
-                _input = "".join(random.choices(string.ascii_lowercase, k=n))
-                _output = FindRange.find_range(_input)
-                exemplars["inputs"].append([_input])
-                exemplars["output"].append([_output])
-
-            if len(exemplars["inputs"]) < n_generate:
-                raise Exception(f"Too few exemplars {len(exemplars['inputs'])} < {n_generate}")
-
-        with open(data_path, "w") as fd:
-            json.dump(data, fd)
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -220,5 +172,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    FindRange.main(args.n_generate, args.out_path)
-    
+    FindRange.main(args.n_generate, args.out_path)    

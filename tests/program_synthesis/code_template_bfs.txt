@@ -1,0 +1,10 @@
+def find_all_neighbors(adj, s):
+    neighbors = set()
+    for i in ([{}]):
+        if adj[s][i]:
+            neighbors.add(i)
+    output = list(neighbors)
+    output.sort()
+    return output
+
+outcomes = evaluate_exemplars(inputs, outputs, find_all_neighbors)
