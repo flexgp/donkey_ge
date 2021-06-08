@@ -1,0 +1,9 @@
+def find_shortest_distance(adj, s):
+        d = [0,100000, 100000, 10000]
+        for i in ([{}]):
+            for j in ([0,1,2,3]):
+                if d[i] + adj[i][j] < d[j]:
+                    d[j] = d[i] + adj[i][j]
+        return d[s]
+
+outcomes = evaluate_exemplars(inputs, outputs, find_shortest_distance)

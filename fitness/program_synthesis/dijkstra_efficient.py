@@ -10,9 +10,9 @@ import signal
 
 from z3 import z3
 
-class BFS():
+class Dijkstra():
     """
-    Synthesize a graph exploration program that resembles BFS
+    Synthesize shortest path that resembles Dijkstra's algorithm
     """
     
     TIMEOUT = 100
@@ -23,15 +23,21 @@ class BFS():
         self.outputs = data["output"]
         assert len(self.inputs) == len(self.outputs)
         self.code_template = """
-def find_all_neighbors(adj, s):
-    neighbors = set()
-    for i in ([{}]):
-        if adj[s][i]:
-            neighbors.add(i)
-    output = list(neighbors)
-    output.sort()
-    return output
-outcomes = evaluate_exemplars(inputs, outputs, find_all_neighbors)
+def find_shortest_distance(adj, s):
+        d = [0,100000, 100000, 10000]
+        counter = 0
+        for i in ([{}]):
+            counter += 1
+            updated = False
+            for j in ([0,1,2,3]):
+                if d[i] + adj[i][j] < d[j]:
+                    d[j] = d[i] + adj[i][j]
+                    updated = True
+            if not updated:
+                return d[s], counter
+        return d[s], counter
+
+outcomes = evaluate_exemplars(inputs, outputs, find_shortest_distance)
     """
         if code_template:
             self.code_template = code_template
@@ -61,7 +67,7 @@ outcomes = evaluate_exemplars(inputs, outputs, find_all_neighbors)
         with self.stdoutIO() as sio:
             try:
                 signal.signal(signal.SIGALRM, self.run_handler)
-                signal.alarm(BFS.TIMEOUT)
+                signal.alarm(Dijkstra.TIMEOUT)
                 exec(program, result)  # pylint: disable=exec-used
             except RuntimeError as e:
                 print(f"TimeoutError {e} for:\n{program}")
@@ -75,35 +81,28 @@ outcomes = evaluate_exemplars(inputs, outputs, find_all_neighbors)
     def evaluate_exemplars(self, inputs, outputs, instance):
         outcomes = []
         for _input, _output in zip(inputs, outputs):
-            outcome = instance(_input[0], _input[1])
-            score = 0
-            for i in outcome:
-                if i in _output[0]:
-                    score += 1
-            if  len(_output[0]) == 0 and score == 0:
-                    outcomes.append(1)
-            elif len(outcome) != len(_output[0]):
+            outcome, count = instance(_input[0], _input[1])
+            if outcome != _output[0]:
                 outcomes.append(0)
             else:
-                outcomes.append(score / len(_output[0]))
+                outcomes.append(min((_output[1]/count), 1))
+                # outcomes.append(1)
         return outcomes
         
     @staticmethod
-    def find_all_neighbors(adj, s):
-        neighbors = set()
+    def find_shortest_distance(adj, s):
+        d = [0,100000, 100000, 10000]
+        counter = 0
         for i in ([0,1,2,3]):
-            if adj[s][i]:
-                neighbors.add(i)
-        output = list(neighbors)
-        output.sort()
-        return output
-
-    @staticmethod
-    def find_one_neighbor(adj, s):
-        for i in ([0,1,2,3]):
-            if adj[s][i]:
-                return [i]
-        return []
+            counter += 1
+            updated = False 
+            for j in ([0,1,2,3]):
+                if d[i] + adj[i][j] < d[j]:
+                    d[j] = d[i] + adj[i][j]
+                    updated = True
+            if not updated:
+                return d[s], counter
+        return d[s], counter
 
     
     @classmethod
@@ -122,15 +121,21 @@ outcomes = evaluate_exemplars(inputs, outputs, find_all_neighbors)
             while len(exemplars["inputs"]) < n_generate and cnt < MAX_CNT:
                 cnt += 1
                 adj = []
+                weight = 0
                 for i in range(4):
                     adj.append([])
                     for  j in range(4):
-                        adj[-1].append(random.randint(0,1))
-                s = random.randint(0,3)
-                adj[s][0] = 0
-                _output = BFS.find_one_neighbor(adj, s)
+                        increment = random.randint(-1,1)
+                        if increment == -1:
+                            adj[-1].append(10000)
+                        else:
+                            weight += increment
+                            adj[-1].append(weight)
+                print(adj)
+                s = random.randint(1,3)
+                _output = Dijkstra.find_shortest_distance(adj, s)
                 exemplars["inputs"].append([adj, s])
-                exemplars["output"].append([_output])
+                exemplars["output"].append(_output)
 
             if len(exemplars["inputs"]) < n_generate:
                 raise Exception(f"Too few exemplars {len(exemplars['inputs'])} < {n_generate}")
@@ -150,4 +155,4 @@ if __name__ == "__main__":
 
     # args = parser.parse_args()
 
-    BFS.main(100, "tests/program_synthesis/one_neighbor_biased.json")
+    Dijkstra.main(100, "tests/program_synthesis/Dijkstra_Efficient.json")

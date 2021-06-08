@@ -1,0 +1,16 @@
+population_size: 10
+max_length: 20
+elite_size: 1
+generations: 20
+tournament_size: 2
+seed: 1
+crossover_probability: 0.8
+mutation_probability: 0.1
+codon_size: 127
+integer_input_element_max: 1000
+bnf_grammar: "tests/grammars/dijkstra.bnf"
+fitness_function:
+    name: "fitness.fitness.ProgramSynthesis"
+    data: 'tests/program_synthesis/Dijkstra_Efficient.json'
+    synthesis_problem: 'fitness.program_synthesis.dijkstra_efficient.Dijkstra'
+    code_template_path: 'tests/program_synthesis/code_template_dijkstra_efficient.txt'
